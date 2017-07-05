@@ -10,19 +10,22 @@ def plan_builder(plan_length):
     plan.add_set_progression("A", set_progress)
 
     plan.add_day("B")
-    set_progress = SetProgression(5, 1, 8, 1)
-    set_progress.add_exercise_progression("Easy", 25, 5, 35, 3)
-    set_progress.add_exercise_progression("Easy", 25, 5, 35, 3)
-    plan.add_set_progression("B", set_progress)
     set_progress_1 = SetProgression(1, 0, 1, 0)
     set_progress_1.add_exercise_progression("Easy", 10, 0, 10, 0)
     plan.add_set_progression("B", set_progress_1)
+    set_progress_2 = SetProgression(5, 1, 8, 1)
+    set_progress_2.add_exercise_progression("Easy", 25, 5, 35, 3)
+    set_progress_2.add_exercise_progression("Easy", 25, 5, 35, 3)
+    plan.add_set_progression("B", set_progress_2)
+    set_progress_3 = SetProgression(1, 0, 1, 0)
+    set_progress_3.add_exercise_progression("Easy", 10, 0, 10, 0)
+    plan.add_set_progression("B", set_progress_3)
 
     plan.add_day("C")
     set_progress = SetProgression(1, 0, 1, 0)
     set_progress.add_exercise_progression("Easy", 25, 5, 35, 3)
     plan.add_set_progression("C", set_progress)
-    
+
     return plan
 
 

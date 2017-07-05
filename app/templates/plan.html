@@ -8,9 +8,19 @@
 </div>
 <div class="container">
     <h2>Summary</h2>
-    <p>Distance: {{ plan.distance }}</p>
-    <p>Ability: {{ plan.ability }}</p>
-    <p>Length: {{ plan.plan_length }}</p>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-condensed">
+            <tr>
+                <td>Distance</td><td>{{ plan.distance }}</td>
+            </tr>
+            <tr>
+                <td>Ability</td><td>{{ plan.ability }}</td>
+            </tr>
+            <tr>
+                <td>Length</td><td>{{ plan.plan_length }} weeks</td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 <div class="container">
