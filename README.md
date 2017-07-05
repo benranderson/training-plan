@@ -5,4 +5,4 @@ Web application for creating bespoke running training plans based on:
 * Ability level
 * Training plan length
 
-Plan builder currently in development.
+Training plan builder currently in development.
