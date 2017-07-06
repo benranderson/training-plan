@@ -17,6 +17,8 @@ def test_rest_week(week, plan_length, expected):
     assert plan.rest_week(week, plan_length) == expected
 
 
+
+
 # @pytest.mark.parametrize("exercise, plan_length, start_conds, progress_conds, expected",
 #     [
 #         ("Easy", 4, (25, 1), (5, 0, 3), [(1, [("Easy", 25)]])

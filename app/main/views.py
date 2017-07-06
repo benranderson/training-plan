@@ -8,7 +8,9 @@ from .builder import plan_builder
 def index():
     form = PlanForm()
     if form.validate_on_submit():
+        distance = form.distance.data
+        ability = form.ability.data
         length = form.length.data
-        plan = plan_builder(length)
+        plan = plan_builder(distance, ability, length)
         return render_template('plan.html', plan=plan)
     return render_template('index.html', form=form)

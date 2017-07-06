@@ -18,9 +18,9 @@ Race week (reps and duration)
 '''
 
 
-def plan_builder(plan_length):
+def plan_builder(distance, ability, plan_length):
 
-    plan = Plan("5k", "Beginner", plan_length)
+    plan = Plan(distance, ability, plan_length)
 
     # Day A
 
