@@ -38,7 +38,7 @@
                 {% set week_loop = loop %}
                 <td>{{ week_loop.index0 }}</td>
                 
-                {% for day in plan.days %}
+                {% for day in ["A", "B", "C"] %}
                 <td>
                     {% for set in plan.days[day][week_loop.index0] %}
                         <p>{{ set.reps }} x {{ set.exercises }}</p>

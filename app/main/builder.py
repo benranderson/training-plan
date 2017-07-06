@@ -1,3 +1,23 @@
+'''
+Progression variables:
+
+- Exercises
+- Starting reps
+Reps progression
+Reps progression frequency (incl. rest weeks or not?)
+Maximum reps
+Starting duration
+Duration progression
+Duration progression frequency (incl. rest weeks or not?)
+Maximum duration
+Rest weeks (reps and duration)
+Race week (reps and duration)
+
+- Alternating exercises each week...
+
+'''
+
+
 def plan_builder(plan_length):
 
     plan = Plan("5k", "Beginner", plan_length)
@@ -143,22 +163,6 @@ class ExerciseProgression(object):
         self.freq = freq
 
 
-class Exercise(object):
-    '''
-    Settings for an exercise (description, duration, etc.)
-    '''
-
-    def __init__(self, description, total_time):
-        self.description = description
-        self.total_time = total_time
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-        return "{0} ({1})".format(self.description, self.total_time)
-
-
 class WorkoutSet(object):
     def __init__(self, reps):
         self.reps = reps
@@ -175,3 +179,19 @@ class WorkoutSet(object):
             duration += exercise.total_time
 
         return duration
+
+
+class Exercise(object):
+    '''
+    Settings for an exercise (description, duration, etc.)
+    '''
+
+    def __init__(self, description, total_time):
+        self.description = description
+        self.total_time = total_time
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "{0} ({1})".format(self.description, self.total_time)
