@@ -18,7 +18,131 @@ Race week (reps and duration)
 '''
 
 
-def run_easy_progress(plan_length, distance="5k", ability="Beginner"):
+class Plan(object):
+    '''
+    Model for a training plan
+    '''
+
+    def __init__(self, distance, ability, plan_length, days_per_week):
+        self.distance = distance
+        self.ability = ability
+        self.plan_length = plan_length
+        self.days_per_week = days_per_week
+
+        progs = {"5k": {"Beginner": {"A": easy_progress,
+                                     "B": inteval_hills_progress,
+                                     "C": easy_progress},
+                        "Intermediate": {"A": steady_int_progress,
+                                         "B": easy_progress,
+                                         "C": easy_progress,
+                                         "D": easy_progress},
+                        "Advanced": {"A": steady_int_progress,
+                                     "B": easy_progress,
+                                     "C": easy_progress,
+                                     "D": easy_progress}
+                        }
+                 }
+
+        progress = progs[distance][ability]
+
+        self.schedule = self.create_plan(progress)
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "{0} week {1} {2} plan ({3} days per week)".format(self.plan_length,
+                                                                  self.ability,
+                                                                  self.distance,
+                                                                  self.days_per_week)
+
+    def create_plan(self, progress):
+
+        # progressions = {"A": easy_progress,
+        #                 "B": inteval_hills_progress,
+        #                 "C": run_easy_progress}
+
+        days = ["A", "B", "C", "D"]
+
+        plan = {}
+
+        for day in range(self.days_per_week):
+            plan[days[day]] = list(progress[days[day]](
+                self.plan_length, self.distance, self.ability))
+
+        return plan
+
+    def calculate_duration_of_day(self, week, day):
+
+        duration = 0
+
+        for workout_set in self.schedule[day][week]:
+            duration += workout_set.calculate_duration()
+
+        return duration
+
+    def calculate_duration_of_week(self, week):
+
+        duration = 0
+
+        for day in self.schedule:
+            for workout_set in self.schedule[day][week]:
+                duration += workout_set.calculate_duration()
+
+        return duration
+
+
+class WorkoutSet(object):
+
+    def __init__(self, reps):
+        self.reps = reps
+        self.exercises = []
+
+    def add_exercise(self, exercise):
+        self.exercises.append(exercise)
+
+    def calculate_duration(self):
+
+        duration = 0
+
+        for exercise in self.exercises:
+            duration += exercise.total_time
+
+        return self.reps * duration
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+
+        # exercises = [(exercise.description, exercise.total_time)
+        #              for exercise in self.exercises]
+
+        return "{0} x {1}".format(self.reps, self.exercises)
+
+
+class Exercise(object):
+    '''
+    Settings for an exercise (description, duration, etc.)
+    '''
+
+    def __init__(self, description, total_time):
+        self.description = description
+        self.total_time = total_time
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "{0} for {1} min".format(self.description, self.total_time)
+
+
+'''
+Progressions
+'''
+
+
+def easy_progress(plan_length, distance="5k", ability="Beginner"):
 
     week = 0
     work_week = 0
@@ -132,6 +256,10 @@ def inteval_hills_progress(plan_length, distance="5k", ability="Beginner"):
         week += 1
 
 
+def steady_int_progress(plan_length, distance="5k", ability="Beginner"):
+    pass
+
+
 def rest_week(week, plan_length):
     ''' Return True if rest week and False if progression week '''
     build_up = plan_length % 4
@@ -141,111 +269,6 @@ def rest_week(week, plan_length):
         return True
     else:
         return False
-
-
-class Plan(object):
-    '''
-    Model for a training plan
-    '''
-
-    def __init__(self, distance, ability, plan_length, days_per_week):
-        self.distance = distance
-        self.ability = ability
-        self.plan_length = plan_length
-        self.days_per_week = days_per_week
-
-        builders = {"5k": {"Beginner": self.create_5k_beginner_plan}}
-
-        self.schedule = builders[self.distance][self.ability]()
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-        return "{0} week {1} {2} plan ({3} days per week)".format(self.plan_length,
-                                                                  self.ability,
-                                                                  self.distance,
-                                                                  self.days_per_week)
-
-    def create_5k_beginner_plan(self):
-
-        progressions = {"A": run_easy_progress,
-                        "B": inteval_hills_progress,
-                        "C": run_easy_progress}
-
-        days = ["A", "B", "C"]
-
-        plan = {}
-
-        for day in range(self.days_per_week):
-            plan[days[day]] = list(progressions[days[day]](
-                self.plan_length, self.distance, self.ability))
-
-        return plan
-
-    def calculate_duration_of_day(self, week, day):
-
-        duration = 0
-
-        for workout_set in self.schedule[day][week]:
-            duration += workout_set.calculate_duration()
-
-        return duration
-
-    def calculate_duration_of_week(self, week):
-
-        duration = 0
-
-        for day in self.schedule:
-            for workout_set in self.schedule[day][week]:
-                duration += workout_set.calculate_duration()
-
-        return duration
-
-
-class WorkoutSet(object):
-
-    def __init__(self, reps):
-        self.reps = reps
-        self.exercises = []
-
-    def add_exercise(self, exercise):
-        self.exercises.append(exercise)
-
-    def calculate_duration(self):
-
-        duration = 0
-
-        for exercise in self.exercises:
-            duration += exercise.total_time
-
-        return self.reps * duration
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-
-        # exercises = [(exercise.description, exercise.total_time)
-        #              for exercise in self.exercises]
-
-        return "{0} x {1}".format(self.reps, self.exercises)
-
-
-class Exercise(object):
-    '''
-    Settings for an exercise (description, duration, etc.)
-    '''
-
-    def __init__(self, description, total_time):
-        self.description = description
-        self.total_time = total_time
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-        return "{0} for {1} min".format(self.description, self.total_time)
 
 
 if __name__ == "__main__":
