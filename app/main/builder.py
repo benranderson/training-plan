@@ -18,35 +18,142 @@ Race week (reps and duration)
 '''
 
 
-def plan_builder(distance, ability, plan_length):
+def plan_builder(distance, ability, plan_length, days_per_week):
 
     plan = Plan(distance, ability, plan_length)
 
-    # Day A
-
-    plan.add_day("A")
-    set_progress = SetProgression(1, 0, 1, 0)
-    set_progress.add_exercise_progression("Easy", 25, 5, 35, 3)
-    plan.add_set_progression("A", set_progress)
-
-    plan.add_day("B")
-    set_progress_1 = SetProgression(1, 0, 1, 0)
-    set_progress_1.add_exercise_progression("Easy", 10, 0, 10, 0)
-    plan.add_set_progression("B", set_progress_1)
-    set_progress_2 = SetProgression(5, 1, 8, 1)
-    set_progress_2.add_exercise_progression("Easy", 25, 5, 35, 3)
-    set_progress_2.add_exercise_progression("Easy", 25, 5, 35, 3)
-    plan.add_set_progression("B", set_progress_2)
-    set_progress_3 = SetProgression(1, 0, 1, 0)
-    set_progress_3.add_exercise_progression("Easy", 10, 0, 10, 0)
-    plan.add_set_progression("B", set_progress_3)
-
-    plan.add_day("C")
-    set_progress = SetProgression(1, 0, 1, 0)
-    set_progress.add_exercise_progression("Easy", 25, 5, 35, 3)
-    plan.add_set_progression("C", set_progress)
+    plan
 
     return plan
+
+
+def create_5k_beginner_plan(plan_length, days_per_week):
+
+    days = {}
+
+    days["A"] = list(run_easy_progress(plan_length, "5k", "Beginner"))
+
+    if days_per_week > 1:
+        days["B"] = list(inteval_hills_progress(plan_length, "5k", "Beginner"))
+
+    if days_per_week > 2:
+        days["C"] = list(run_easy_progress(plan_length, "5k", "Beginner"))
+
+    return days
+
+
+def run_easy_progress(plan_length, distance="5k", ability="Beginner"):
+
+    week = 0
+    work_week = 0
+
+    reps = 1
+    durations = {"Beginner": 25}
+    duration = durations[ability]
+
+    while week < plan_length:
+
+        if not rest_week(week, plan_length):
+
+            if week > 0 and work_week % 3 == 0 and duration < 35:
+                duration += 5
+
+            exercise = Exercise("Easy", duration)
+
+            work_week += 1
+
+        else:
+            rest_duration = duration - 5
+            exercise = Exercise("Easy", rest_duration)
+
+        workout = []
+
+        workout_set = WorkoutSet(reps)
+        workout_set.add_exercise(exercise)
+
+        workout.append(workout_set)
+
+        yield workout
+
+        week += 1
+
+
+def inteval_hills_progress(plan_length, distance="5k", ability="Beginner"):
+
+    week = 0
+    int_work_week = 0
+    hill_work_week = 0
+
+    int_reps = 5
+    fast_duration = 0.5
+    easy_duration = 1
+
+    hill_reps = 6
+
+    while week < plan_length:
+
+        # interval week
+        if week % 2 == 0:
+
+            if not rest_week(week, plan_length):
+
+                if int_work_week > 0:
+                    if int_work_week % 2 == 0:
+                        if fast_duration < 1:
+                            fast_duration += 0.25
+
+                    elif int_reps < 8:
+                        int_reps += 1
+
+                int_work_week += 1
+
+            warmup_dur = 10
+            warmdown_dur = 10
+
+            work_reps = int_reps
+            work_1 = Exercise("Fast", fast_duration)
+            work_2 = Exercise("Easy", 1)
+
+            work_sets = [work_1, work_2]
+
+        # hillsprint week
+        else:
+
+            if not rest_week(week, plan_length):
+
+                if hill_work_week > 0 and hill_work_week % 3 == 0 and hill_reps < 10:
+                    hill_reps += 2
+
+                hill_work_week += 1
+
+            work_reps = hill_reps
+
+            warmup_dur = 12
+            warmdown_dur = 12
+            work = Exercise("Hill", 0.25)
+
+            work_sets = [work]
+
+        workout = []
+
+        warmup = WorkoutSet(1)
+        warmup.add_exercise(Exercise("Easy", warmup_dur))
+        workout.append(warmup)
+
+        work = WorkoutSet(work_reps)
+
+        for work_set in work_sets:
+            work.add_exercise(work_set)
+
+        workout.append(work)
+
+        warmdown = WorkoutSet(1)
+        warmdown.add_exercise(Exercise("Easy", warmdown_dur))
+        workout.append(warmdown)
+
+        yield workout
+
+        week += 1
 
 
 def progress(plan_length, set_progress):
@@ -112,18 +219,22 @@ class Plan(object):
     Model for a training plan
     '''
 
-    def __init__(self, distance, ability, plan_length):
+    def __init__(self, distance, ability, plan_length, days_per_week):
         self.distance = distance
         self.ability = ability
         self.plan_length = plan_length
+        self.days_per_week = days_per_week
 
-        self.days = {}
+        self.days = create_5k_beginner_plan(plan_length, days_per_week)
 
     def __repr__(self):
         '''
         Return a more human-readable representation
         '''
-        return "{0} {1}".format(self.distance, self.ability)
+        return "{0} week {1} {2} plan ({3} days per week)".format(self.plan_length,
+                                                                  self.ability,
+                                                                  self.distance,
+                                                                  self.days_per_week)
 
     def add_day(self, day):
         self.days[day] = []
@@ -180,6 +291,16 @@ class WorkoutSet(object):
 
         return duration
 
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+
+        # exercises = [(exercise.description, exercise.total_time)
+        #              for exercise in self.exercises]
+
+        return "{0} x {1}".format(self.reps, self.exercises)
+
 
 class Exercise(object):
     '''
@@ -194,4 +315,13 @@ class Exercise(object):
         '''
         Return a more human-readable representation
         '''
-        return "{0} ({1})".format(self.description, self.total_time)
+        return "{0} for {1} min".format(self.description, self.total_time)
+
+
+if __name__ == "__main__":
+    plan = create_5k_beginner_plan(12, 3)
+
+    for day in plan:
+        print(day)
+        for week in plan[day]:
+            print(week)

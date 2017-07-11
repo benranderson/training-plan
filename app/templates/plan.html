@@ -38,10 +38,10 @@
                 {% set week_loop = loop %}
                 <td>{{ week_loop.index0 }}</td>
                 
-                {% for day in ["A", "B", "C"] %}
+                {% for day in plan.days %}
                 <td>
                     {% for set in plan.days[day][week_loop.index0] %}
-                        <p>{{ set.reps }} x {{ set.exercises }}</p>
+                        <p>{{ set }}</p>
                     {% endfor %}
                 {% endfor %}
                 </td>
