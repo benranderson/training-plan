@@ -29,22 +29,25 @@
       <table class="table table-bordered table-striped table-condensed">
         <tr>
             <th><strong>Week</strong></th>
-            {% for day in plan.days %}
+            {% for day in plan.schedule %}
                 <th><strong>Day {{ day }}</strong></th>
             {% endfor %}
+            <th>Minutes Training for the Week</th>
         </tr>
-        {% for week in plan.days["A"] %}
+        {% for week in plan.schedule["A"] %}
             <tr>
                 {% set week_loop = loop %}
                 <td>{{ week_loop.index0 }}</td>
                 
-                {% for day in plan.days %}
+                {% for day in plan.schedule %}
                 <td>
-                    {% for set in plan.days[day][week_loop.index0] %}
+                    {% for set in plan.schedule[day][week_loop.index0] %}
                         <p>{{ set }}</p>
                     {% endfor %}
                 {% endfor %}
                 </td>
+            
+                <td>{{ plan.calculate_duration_of_week(week_loop.index0) }}</td>
             </tr>
         {% endfor %}
       </table>

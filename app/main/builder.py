@@ -18,30 +18,6 @@ Race week (reps and duration)
 '''
 
 
-def plan_builder(distance, ability, plan_length, days_per_week):
-
-    plan = Plan(distance, ability, plan_length)
-
-    plan
-
-    return plan
-
-
-def create_5k_beginner_plan(plan_length, days_per_week):
-
-    days = {}
-
-    days["A"] = list(run_easy_progress(plan_length, "5k", "Beginner"))
-
-    if days_per_week > 1:
-        days["B"] = list(inteval_hills_progress(plan_length, "5k", "Beginner"))
-
-    if days_per_week > 2:
-        days["C"] = list(run_easy_progress(plan_length, "5k", "Beginner"))
-
-    return days
-
-
 def run_easy_progress(plan_length, distance="5k", ability="Beginner"):
 
     week = 0
@@ -156,53 +132,6 @@ def inteval_hills_progress(plan_length, distance="5k", ability="Beginner"):
         week += 1
 
 
-def progress(plan_length, set_progress):
-    ''' Yield progression '''
-
-    reps = set_progress.start_reps
-    exercise_progressions = set_progress.exercise_progressions
-
-    week = 0
-    work_week = 0
-
-    exercise_durs = []
-
-    for exercise_progression in exercise_progressions:
-        exercise_durs.append(exercise_progression.start_dur)
-
-    while week < plan_length:
-
-        if not rest_week(week, plan_length):
-
-            if set_progress.freq > 0 and work_week % set_progress.freq == 0 and reps < set_progress.max_reps:
-                reps += 1
-
-            for i, exercise_progression in enumerate(exercise_progressions):
-
-                progress_check = exercise_progression.freq > 0 and work_week % exercise_progression.freq == 0
-                max_check = exercise_durs[i] < exercise_progression.max_dur
-
-                if progress_check and max_check:
-                    exercise_durs[i] += exercise_progression.progress_dur
-
-            work_week += 1
-
-        exercises = []
-
-        for i, exercise_progression in enumerate(exercise_progressions):
-            exercises.append(Exercise(exercise_progression.description,
-                                      exercise_durs[i]))
-
-        workout_set = WorkoutSet(reps)
-
-        for exercise in exercises:
-            workout_set.add_exercise(exercise)
-
-        yield workout_set
-
-        week += 1
-
-
 def rest_week(week, plan_length):
     ''' Return True if rest week and False if progression week '''
     build_up = plan_length % 4
@@ -225,7 +154,9 @@ class Plan(object):
         self.plan_length = plan_length
         self.days_per_week = days_per_week
 
-        self.days = create_5k_beginner_plan(plan_length, days_per_week)
+        builders = {"5k": {"Beginner": self.create_5k_beginner_plan}}
+
+        self.schedule = builders[self.distance][self.ability]()
 
     def __repr__(self):
         '''
@@ -236,45 +167,44 @@ class Plan(object):
                                                                   self.distance,
                                                                   self.days_per_week)
 
-    def add_day(self, day):
-        self.days[day] = []
-        for week in range(self.plan_length):
-            self.days[day].append([])
+    def create_5k_beginner_plan(self):
 
-    def add_set_progression(self, day, progression):
+        progressions = {"A": run_easy_progress,
+                        "B": inteval_hills_progress,
+                        "C": run_easy_progress}
 
-        for i, week in enumerate(progress(self.plan_length, progression)):
-            self.days[day][i].append(week)
+        days = ["A", "B", "C"]
+
+        plan = {}
+
+        for day in range(self.days_per_week):
+            plan[days[day]] = list(progressions[days[day]](
+                self.plan_length, self.distance, self.ability))
+
+        return plan
 
     def calculate_duration_of_day(self, week, day):
-        pass
 
+        duration = 0
 
-class SetProgression(object):
-    def __init__(self, start_reps, progress_reps, max_reps, freq):
-        self.start_reps = start_reps
-        self.progress_reps = progress_reps
-        self.max_reps = max_reps
-        self.freq = freq
+        for workout_set in self.schedule[day][week]:
+            duration += workout_set.calculate_duration()
 
-        self.exercise_progressions = []
+        return duration
 
-    def add_exercise_progression(self, description, dur, progress_dur, max_dur, freq):
-        exercise_progression = ExerciseProgression(
-            description, dur, progress_dur, max_dur, freq)
-        self.exercise_progressions.append(exercise_progression)
+    def calculate_duration_of_week(self, week):
 
+        duration = 0
 
-class ExerciseProgression(object):
-    def __init__(self, description, start_dur, progress_dur, max_dur, freq):
-        self.description = description
-        self.start_dur = start_dur
-        self.progress_dur = progress_dur
-        self.max_dur = max_dur
-        self.freq = freq
+        for day in self.schedule:
+            for workout_set in self.schedule[day][week]:
+                duration += workout_set.calculate_duration()
+
+        return duration
 
 
 class WorkoutSet(object):
+
     def __init__(self, reps):
         self.reps = reps
         self.exercises = []
@@ -289,7 +219,7 @@ class WorkoutSet(object):
         for exercise in self.exercises:
             duration += exercise.total_time
 
-        return duration
+        return self.reps * duration
 
     def __repr__(self):
         '''
@@ -319,9 +249,9 @@ class Exercise(object):
 
 
 if __name__ == "__main__":
-    plan = create_5k_beginner_plan(12, 3)
+    plan = Plan("5k", "Beginner", 12, 3)
 
-    for day in plan:
+    for day in plan.schedule:
         print(day)
-        for week in plan[day]:
-            print(week)
+        for i, week in enumerate(plan.schedule[day]):
+            print(week, str(plan.calculate_duration_of_week(i)))
