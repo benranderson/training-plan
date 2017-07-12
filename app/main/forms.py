@@ -9,13 +9,27 @@ class NameForm(FlaskForm):
 
 
 class PlanForm(FlaskForm):
-    distance = StringField('What is your race distance?',
-                           default="5k", validators=[Required()])
-    ability = StringField('What is your ability level?',
-                          default="Beginner", validators=[Required()])
+    distance = SelectField('What is your race distance?',
+                           default='5k',
+                           choices=[('5k', '5k'),
+                                    ('10k', '10k'),
+                                    ('half', 'Half Marathon'),
+                                    ('full', 'Full Marathon')
+                                    ]
+                           )
+                           
+    ability = SelectField('What is your ability level?',
+                          default='Beginner',
+                          choices=[('beg', 'Beginner'),
+                                   ('int', 'Intermediate'),
+                                   ('adv', 'Advanced')
+                                    ]
+                          )
+                          
     length = IntegerField('Plan length in weeks', validators=[Required()])
-    days_per_week = SelectField(
-        'Number of training days per week', choices=[('1', '1'),
-                                                     ('2', '2'),
-                                                     ('3', '3')])
+    
+    days_per_week = SelectField('Number of training days per week', 
+                                default='3',
+                                choices=[('1', '1'), ('2', '2'), ('3', '3')])
+                                                     
     submit = SubmitField('Submit')
