@@ -29,17 +29,17 @@ class Plan(object):
         self.plan_length = plan_length
         self.days_per_week = days_per_week
 
-        progs = {"5k": {"Beginner": {"A": easy_progress,
-                                     "B": inteval_hills_progress,
-                                     "C": easy_progress},
-                        "Intermediate": {"A": steady_int_progress,
-                                         "B": easy_progress,
-                                         "C": easy_progress,
-                                         "D": easy_progress},
-                        "Advanced": {"A": steady_int_progress,
-                                     "B": easy_progress,
-                                     "C": easy_progress,
-                                     "D": easy_progress}
+        progs = {"5k": {"beg": {"A": easy_progress,
+                                "B": inteval_hills_progress,
+                                "C": easy_progress},
+                        "int": {"A": steady_int_progress,
+                                "B": easy_progress,
+                                "C": easy_progress,
+                                "D": easy_progress},
+                        "adv": {"A": steady_int_progress,
+                                "B": easy_progress,
+                                "C": easy_progress,
+                                "D": easy_progress}
                         }
                  }
 
@@ -142,13 +142,13 @@ Progressions
 '''
 
 
-def easy_progress(plan_length, distance="5k", ability="Beginner"):
+def easy_progress(plan_length, distance, ability):
 
     week = 0
     work_week = 0
 
     reps = 1
-    durations = {"Beginner": 25}
+    durations = {"beg": 25}
     duration = durations[ability]
 
     while week < plan_length:
@@ -178,7 +178,7 @@ def easy_progress(plan_length, distance="5k", ability="Beginner"):
         week += 1
 
 
-def inteval_hills_progress(plan_length, distance="5k", ability="Beginner"):
+def inteval_hills_progress(plan_length, distance, ability):
 
     week = 0
     int_work_week = 0
@@ -256,7 +256,7 @@ def inteval_hills_progress(plan_length, distance="5k", ability="Beginner"):
         week += 1
 
 
-def steady_int_progress(plan_length, distance="5k", ability="Beginner"):
+def steady_int_progress(plan_length, distance, ability):
     pass
 
 
@@ -272,7 +272,7 @@ def rest_week(week, plan_length):
 
 
 if __name__ == "__main__":
-    plan = Plan("5k", "Beginner", 12, 3)
+    plan = Plan("5k", "beg", 12, 3)
 
     for day in plan.schedule:
         print(day)

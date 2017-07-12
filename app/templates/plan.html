@@ -11,10 +11,10 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-condensed">
             <tr>
-                <td>Distance</td><td>{{ plan.distance }}</td>
+                <td>Distance</td><td>{{ distance }}</td>
             </tr>
             <tr>
-                <td>Ability</td><td>{{ plan.ability }}</td>
+                <td>Ability</td><td>{{ ability }}</td>
             </tr>
             <tr>
                 <td>Length</td><td>{{ plan.plan_length }} weeks</td>
@@ -46,7 +46,7 @@
                     {% endfor %}
                 {% endfor %}
                 </td>
-            
+
                 <td>{{ plan.calculate_duration_of_week(week_loop.index0) }}</td>
             </tr>
         {% endfor %}
