@@ -16,6 +16,8 @@ Race week (reps and duration)
 - Alternating exercises each week...
 
 '''
+from collections import namedtuple
+RunEasy = namedtuple('RunEasy', 'start prog freq max rest')
 
 
 class Plan(object):
@@ -115,16 +117,10 @@ class WorkoutSet(object):
         Return a more human-readable representation
         '''
 
-        # exercises = [(exercise.description, exercise.total_time)
-        #              for exercise in self.exercises]
-
         return "{0} x {1}".format(self.reps, self.exercises)
 
 
 class Exercise(object):
-    '''
-    Settings for an exercise (description, duration, etc.)
-    '''
 
     def __init__(self, description, total_time):
         self.description = description
@@ -137,9 +133,7 @@ class Exercise(object):
         return "{0} for {1} min".format(self.description, self.total_time)
 
 
-'''
-Progressions
-'''
+# Progressions
 
 
 def easy_progress(plan_length, distance, ability):
