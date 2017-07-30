@@ -1,81 +1,133 @@
+import datetime
+import calendar
+
+from .events import events_dict
+
+
 class Plan:
 
-    def __init__(self, distance, ability, length, days_per_week):
-        self.distance = distance
-        self.ability = ability
-        self.length = length
-        self.days_per_week = days_per_week
+    def __init__(self, event, level, current_date=datetime.date.today()):
+        self.event = event
+        self.distance = "5k"
+        self.level = level
+        self.current_date = current_date
+        self.start_date = self.determine_start_date()
+        self.schedule_weeks = self.determine_schedule_weeks()
+        self.weeks_to_event = len(self.schedule_weeks)
 
-        self.progressions = {}
+        self.schedule = {}
 
-    def add_progression(self, day, progression):
-        self.progressions[day] = progression
+        self.create_schedule()
+
+        self.calendars = []
+
+        year = 0
+        month = 0
+        for entry in self.schedule:
+            if entry.year > year or entry.month > month:
+                year = entry.year
+                month = entry.month
+                self.calendars.append(WorkoutCalendar(
+                    self.schedule).formatmonth(year, month))
 
     def __repr__(self):
         '''
         Return a more human-readable representation
         '''
 
-        return "{0} week {1} {2} plan ({3} days per week)".format(self.length,
-                                                                  self.ability,
-                                                                  self.distance,
-                                                                  self.days_per_week)
+        return "{0} week {1} Plan for the {2}".format(self.weeks_to_event,
+                                                      self.level,
+                                                      self.event)
+
+    def determine_start_date(self):
+        days_ahead = 0 - self.current_date.weekday()
+        if days_ahead <= 0:  # Target day already happened this week
+            days_ahead += 7
+        return self.current_date + datetime.timedelta(days_ahead)
+
+    def determine_schedule_weeks(self):
+        event_date = events_dict[self.event]
+        days_ahead = 6 - event_date.weekday()
+        end_date = event_date + datetime.timedelta(days_ahead)
+        days = [self.start_date + datetime.timedelta(n)
+                for n in range(int((end_date - self.start_date).days) + 1)]
+        return [days[i:i + 7] for i in range(0, len(days), 7)]
+
+    # def calculate_weeks_to_event(self):
+
+    #     event_date = events[self.event]
+    #     days_to_event = event_date - self.start_date
+
+    #     return int(days_to_event.days / 7)
+
+    # def add_progression_to_schedule(self, day, progression):
+
+    #     for i, week in enumerate(progression):
+    #         try:
+    #             self.schedule[i][day] = week
+
+    #         except IndexError:
+    #             self.schedule.append({})
+    #             self.schedule[i][day] = week
+
+    # def calculate_mins_training_per_week(self, week):
+
+    #     duration = 0
+
+    #     for day, workout in self.schedule[week].items():
+    #         duration += workout.duration
+
+    #     return duration
+
+    def create_schedule(self):
+
+        builders = {"5k": {"Beginner": self.builder_5k_beg}}
+
+        builders[self.distance][self.level]()
+
+    def builder_5k_beg(self):
+
+        days = [0, 2, 5]
+
+        # Day A and C
+        prog_A = []
+        prog_C = []
+
+        dur_A = 25
+        dur_C = 30
+
+        max = 35
+
+        for week, dates in enumerate(self.schedule_weeks):
+
+            # Day A
+            date_A = dates[0]
+
+            # Day C
+            date_C = dates[5]
+
+            if not rest_week(week, self.weeks_to_event):
+                if (week + 1) % 6 == 0 and dur_C < max:
+                    dur_C += 5
+                elif (week + 1) % 3 == 0 and dur_A < max:
+                    dur_A += 5
+
+                self.schedule[date_A] = RunEasy(dur_A)
+                self.schedule[date_C] = RunEasy(dur_C)
+
+            else:
+                if dur_C < dur_A:
+                    self.schedule[date_A] = RunEasy(dur_A)
+                    self.schedule[date_C] = RunEasy(dur_C - 5)
+                else:
+                    self.schedule[date_A] = RunEasy(dur_A - 5)
+                    self.schedule[date_C] = RunEasy(dur_C)
 
 
 class Workout:
 
-    def __init__(self, rest=False):
-        self.rest = rest
-        self.work_sets = []
-
-    def add_work_set(self, work_set):
-        self.work_sets.append(work_set)
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-
-        return "Rest={0} {1}".format(self.rest, self.work_sets)
-
-
-class WorkSet:
-
-    def __init__(self, reps):
-        self.reps = reps
-        self.exercises = []
-
-    def add_exercise(self, exercise):
-        self.exercises.append(exercise)
-
-    def calculate_duration(self):
-
-        duration = 0
-
-        for exercise in self.exercises:
-            duration += exercise.total_time
-
-        return self.reps * duration
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-
-        return "{0} x {1}".format(self.reps, self.exercises)
-
-
-class Exercise:
-
-    def __init__(self, description, total_time):
-        self.description = description
-        self.total_time = total_time
-
-    def __repr__(self):
-        '''
-        Return a more human-readable representation
-        '''
-        return "{0} for {1} min".format(self.description, self.total_time)
+    def __init__(self, date=datetime.date.today()):
+        self.date = date
 
 
 def rest_week(week, plan_length):
@@ -88,447 +140,571 @@ def rest_week(week, plan_length):
     else:
         return False
 
-# =============
-# Beginner Plan
-# =============
 
+class RunEasy(Workout):
+
+    def __init__(self, duration, date=datetime.date.today()):
+        super().__init__(date)
+        self.description = "Run Easy"
+        self.duration = duration
+        self.warmup = None
+        self.warmdown = None
+        self.background_css = 'btn-success'
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "Run for {0} minutes at an easy pace".format(self.duration)
+
+
+class Interval(Workout):
+
+    def __init__(self, reps, fast, slow):
+        super().__init__(datetime.date.today())
+        self.description = "Intervals"
+        self.reps = reps
+        self.fast = fast
+        self.slow = slow
+        self.warmup = RunEasy(10)
+        self.warmdown = RunEasy(10)
+        self.duration = self.calculate_duration()
+        self.background_css = 'btn-danger'
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "Run fast for {0} minutes then run at an easy pace for {1} minutes.  Repeat {2} times.".format(self.fast, self.slow, self.reps)
+
+    def calculate_duration(self):
+        warmup = self.warmup.duration
+        work = self.reps * (self.fast + self.slow)
+        warmdown = self.warmdown.duration
+        return warmup + work + warmdown
+
+
+class HillSprint(Workout):
+
+    def __init__(self, reps, sprint):
+        super().__init__(datetime.date.today())
+        self.description = "Hill Sprint"
+        self.reps = reps
+        self.sprint = sprint
+        self.warmup = RunEasy(12)
+        self.warmdown = RunEasy(12)
+        self.duration = self.calculate_duration()
+        self.background_css = 'btn-warning'
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "Run fast uphill for {0} minutes.  Repeat {1} times.".format(self.sprint, self.reps)
+
+    def calculate_duration(self):
+        warmup = self.warmup.duration
+        work = self.reps * self.sprint
+        warmdown = self.warmdown.duration
+        return warmup + work + warmdown
+
+
+class WorkoutCalendar(calendar.HTMLCalendar):
+
+    def __init__(self, schedule):
+        super(WorkoutCalendar, self).__init__()
+        self.schedule = schedule
+
+    def formatday(self, day, weekday):
+
+        # days belonging to last or next month are rendered empty
+        if day == 0:
+            return self.day_cell('noday', '&nbsp;')
+
+        date_obj = datetime.date(self.year, self.month, day)
+        cssclass = self.cssclasses[weekday]
+        if datetime.date.today() == date_obj:
+            cssclass += ' today'
+
+        # There are no logs for this day, doesn't need special attention
+        if date_obj not in self.schedule:
+            return self.day_cell(cssclass, day)
+
+        entry = self.schedule.get(date_obj)
+        background_css = entry.background_css
+        formatted_date = str(day)
+        body = []
+        body.append('<p> {0} </p>'.format(formatted_date))
+        body.append(
+            '<a class="btn btn-block {0} calendar-link">'.format(background_css))
+
+        body.append(repr(entry))
+        body.append('</a>')
+
+        return self.day_cell(cssclass, '{0}'.format(''.join(body)))
 
-plan = Plan("5k", "Beginner", 24, 3)
+    def formatmonth(self, year, month):
+        '''
+        Format the table header. This is basically the same code from python's
+        calendar module but with additional bootstrap classes
+        '''
+        self.year, self.month = year, month
+        out = []
+        out.append('<table class="month table table-bordered">\n')
+        out.append(self.formatmonthname(year, month))
+        out.append('\n')
+        out.append(self.formatweekheader())
+        out.append('\n')
+        for week in self.monthdays2calendar(year, month):
+            out.append(self.formatweek(week))
+            out.append('\n')
+        out.append('</table>\n')
+        return ''.join(out)
 
-# Day A
-# -----
+    def day_cell(self, cssclass, body):
+        '''
+        Renders a day cell
+        '''
+        return '<td class="{0}" style="vertical-align: middle;">{1}</td>'.format(cssclass, body)
 
-start_dur = 25
-progress = 5
-freq = 3
-max = 2
-rest = -5
+        # =============
+        # Beginner Plan
+        # =============
 
-work_week = 0
-multiplier = 0
+        # plan = Plan("5k", "Beginner", 24, 3)
 
-progression = []
+        # Day A
+        # # -----
 
-for week in range(plan.length):
+        # start_dur = 25
+        # progress = 5
+        # freq = 3
+        # max = 2
+        # rest = -5
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # work_week = 0
+        # multiplier = 0
 
-    if not rest:
-        if week > 0 and (work_week + 1) % freq == 0 and multiplier < max:
-            multiplier += 1
+        # progression = []
 
-        work_week += 1
-        duration = start_dur + multiplier * progress
+        # for week in range(plan.length):
 
-    else:
-        duration = start_dur + multiplier * progress + rest
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-    workset = WorkSet(1)
-    workset.add_exercise(Exercise("Easy", duration))
-    workout.add_work_set(workset)
-    progression.append(workout)
-    plan.add_progression("A", progression)
+        #     if not rest:
+        #         if week > 0 and (work_week + 1) % freq == 0 and multiplier < max:
+        #             multiplier += 1
 
-# Day B
-# -----
+        #         work_week += 1
+        #         duration = start_dur + multiplier * progress
 
-# Interval progression
+        #     else:
+        #         duration = start_dur + multiplier * progress + rest
 
-start_dur = 0.5
-prog_dur = 0.25
-mult_dur = 0
+        #     workset = WorkSet(1)
+        #     workset.add_exercise(Exercise("Easy", duration))
+        #     workout.add_work_set(workset)
+        #     progression.append(workout)
+        #     plan.add_progression("A", progression)
 
-start_reps = 5
-prog_reps = 1
-mult_reps = 0
+        # # Day B
+        # # -----
 
-work_week = 0
+        # # Interval progression
 
-progression_1 = []
+        # start_dur = 0.5
+        # prog_dur = 0.25
+        # mult_dur = 0
 
-for week in range(0, plan.length, 2):
+        # start_reps = 5
+        # prog_reps = 1
+        # mult_reps = 0
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # work_week = 0
 
-    if not rest:
+        # progression_1 = []
 
-        if work_week % 2 == 0:
-            # Duration progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
-                mult_dur += 1
+        # for week in range(0, plan.length, 2):
 
-        else:
-            # Reps progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
-                mult_reps += 1
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-        work_week += 1
+        #     if not rest:
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #         if work_week % 2 == 0:
+        #             # Duration progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
+        #                 mult_dur += 1
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmup)
+        #         else:
+        #             # Reps progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
+        #                 mult_reps += 1
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Fast", duration))
-    workset.add_exercise(Exercise("Easy", 1))
-    workout.add_work_set(workset)
+        #         work_week += 1
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmdown)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-    progression_1.append(workout)
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmup)
 
-# Hills progression
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Fast", duration))
+        #     workset.add_exercise(Exercise("Easy", 1))
+        #     workout.add_work_set(workset)
 
-start_dur = 0.25
-prog_dur = 0
-mult_dur = 0
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmdown)
 
-start_reps = 6
-prog_reps = 2
-mult_reps = 0
+        #     progression_1.append(workout)
 
-work_week = 0
+        # # Hills progression
 
-progression_2 = []
+        # start_dur = 0.25
+        # prog_dur = 0
+        # mult_dur = 0
 
-for week in range(1, plan.length, 2):
+        # start_reps = 6
+        # prog_reps = 2
+        # mult_reps = 0
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # work_week = 0
 
-    if not rest:
+        # progression_2 = []
 
-        # Reps progression
-        if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
-            mult_reps += 1
+        # for week in range(1, plan.length, 2):
 
-        work_week += 1
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #     if not rest:
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmup)
+        #         # Reps progression
+        #         if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
+        #             mult_reps += 1
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Hills", duration))
-    workout.add_work_set(workset)
+        #         work_week += 1
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmdown)
-    progression_2.append(workout)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-progression = [val for pair in zip(
-    progression_1, progression_2) for val in pair]
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmup)
 
-plan.add_progression("B", progression)
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Hills", duration))
+        #     workout.add_work_set(workset)
 
-# Day C
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmdown)
+        #     progression_2.append(workout)
 
-start_dur = 30
-progress = 5
-freq = 3
-max = 1
-rest = -5
+        # progression = [val for pair in zip(
+        #     progression_1, progression_2) for val in pair]
 
-work_week = 0
-multiplier = 0
+        # plan.add_progression("B", progression)
 
-progression = []
+        # # Day C
 
-for week in range(plan.length):
+        # start_dur = 30
+        # progress = 5
+        # freq = 3
+        # max = 1
+        # rest = -5
 
-    rest = rest_week(week, plan.length)
+        # work_week = 0
+        # multiplier = 0
 
-    workout = Workout(rest)
+        # progression = []
 
-    if not rest:
-        if week > 0 and (work_week + 1) % freq == 0 and multiplier < max:
-            multiplier += 1
+        # for week in range(plan.length):
 
-        work_week += 1
-        duration = start_dur + multiplier * progress
+        #     rest = rest_week(week, plan.length)
 
-    else:
-        duration = start_dur + multiplier * progress + rest
+        #     workout = Workout(rest)
 
-    workset = WorkSet(1)
-    workset.add_exercise(Exercise("Easy", duration))
-    workout.add_work_set(workset)
-    progression.append(workout)
-    plan.add_progression("C", progression)
+        #     if not rest:
+        #         if week > 0 and (work_week + 1) % freq == 0 and multiplier < max:
+        #             multiplier += 1
 
+        #         work_week += 1
+        #         duration = start_dur + multiplier * progress
 
-# =============
-# Intermediate Plan
-# =============
+        #     else:
+        #         duration = start_dur + multiplier * progress + rest
 
+        #     workset = WorkSet(1)
+        #     workset.add_exercise(Exercise("Easy", duration))
+        #     workout.add_work_set(workset)
+        #     progression.append(workout)
+        #     plan.add_progression("C", progression)
 
-plan = Plan("5k", "Intermediate", 24, 3)
+        # # =============
+        # # Intermediate Plan
+        # # =============
 
-# Day A
-# -----
+        # plan = Plan("5k", "Intermediate", 24, 3)
 
-# Tempo progression
+        # # Day A
+        # # -----
 
-start_dur = 0.5
-prog_dur = 0.25
-mult_dur = 0
+        # # Tempo progression
 
-start_reps = 5
-prog_reps = 1
-mult_reps = 0
+        # start_dur = 0.5
+        # prog_dur = 0.25
+        # mult_dur = 0
 
-work_week = 0
+        # start_reps = 5
+        # prog_reps = 1
+        # mult_reps = 0
 
-progression_1 = []
+        # work_week = 0
 
-for week in range(0, plan.length, 2):
+        # progression_1 = []
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # for week in range(0, plan.length, 2):
 
-    if not rest:
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-        if work_week % 2 == 0:
-            # Duration progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
-                mult_dur += 1
+        #     if not rest:
 
-        else:
-            # Reps progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
-                mult_reps += 1
+        #         if work_week % 2 == 0:
+        #             # Duration progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
+        #                 mult_dur += 1
 
-        work_week += 1
+        #         else:
+        #             # Reps progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
+        #                 mult_reps += 1
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #         work_week += 1
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmup)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Fast", duration))
-    workset.add_exercise(Exercise("Easy", 1))
-    workout.add_work_set(workset)
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmup)
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmdown)
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Fast", duration))
+        #     workset.add_exercise(Exercise("Easy", 1))
+        #     workout.add_work_set(workset)
 
-    progression_1.append(workout)
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmdown)
 
-# Hills progression
+        #     progression_1.append(workout)
 
-start_dur = 0.25
-prog_dur = 0
-mult_dur = 0
+        # # Hills progression
 
-start_reps = 6
-prog_reps = 2
-mult_reps = 0
+        # start_dur = 0.25
+        # prog_dur = 0
+        # mult_dur = 0
 
-work_week = 0
+        # start_reps = 6
+        # prog_reps = 2
+        # mult_reps = 0
 
-progression_2 = []
+        # work_week = 0
 
-for week in range(1, plan.length, 2):
+        # progression_2 = []
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # for week in range(1, plan.length, 2):
 
-    if not rest:
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-        # Reps progression
-        if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
-            mult_reps += 1
+        #     if not rest:
 
-        work_week += 1
+        #         # Reps progression
+        #         if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
+        #             mult_reps += 1
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #         work_week += 1
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmup)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Hills", duration))
-    workout.add_work_set(workset)
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmup)
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmdown)
-    progression_2.append(workout)
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Hills", duration))
+        #     workout.add_work_set(workset)
 
-progression = [val for pair in zip(
-    progression_1, progression_2) for val in pair]
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmdown)
+        #     progression_2.append(workout)
 
-plan.add_progression("B", progression)
+        # progression = [val for pair in zip(
+        #     progression_1, progression_2) for val in pair]
 
-# Day B
-# -----
+        # plan.add_progression("B", progression)
 
-# Interval progression
+        # # Day B
+        # # -----
 
-start_dur = 0.5
-prog_dur = 0.25
-mult_dur = 0
+        # # Interval progression
 
-start_reps = 5
-prog_reps = 1
-mult_reps = 0
+        # start_dur = 0.5
+        # prog_dur = 0.25
+        # mult_dur = 0
 
-work_week = 0
+        # start_reps = 5
+        # prog_reps = 1
+        # mult_reps = 0
 
-progression_1 = []
+        # work_week = 0
 
-for week in range(0, plan.length, 2):
+        # progression_1 = []
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # for week in range(0, plan.length, 2):
 
-    if not rest:
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-        if work_week % 2 == 0:
-            # Duration progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
-                mult_dur += 1
+        #     if not rest:
 
-        else:
-            # Reps progression
-            if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
-                mult_reps += 1
+        #         if work_week % 2 == 0:
+        #             # Duration progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_dur < 3:
+        #                 mult_dur += 1
 
-        work_week += 1
+        #         else:
+        #             # Reps progression
+        #             if week > 0 and (work_week + 1) % 1 == 0 and mult_reps < 2:
+        #                 mult_reps += 1
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #         work_week += 1
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmup)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Fast", duration))
-    workset.add_exercise(Exercise("Easy", 1))
-    workout.add_work_set(workset)
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmup)
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 10))
-    workout.add_work_set(warmdown)
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Fast", duration))
+        #     workset.add_exercise(Exercise("Easy", 1))
+        #     workout.add_work_set(workset)
 
-    progression_1.append(workout)
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 10))
+        #     workout.add_work_set(warmdown)
 
-# Hills progression
+        #     progression_1.append(workout)
 
-start_dur = 0.25
-prog_dur = 0
-mult_dur = 0
+        # # Hills progression
 
-start_reps = 6
-prog_reps = 2
-mult_reps = 0
+        # start_dur = 0.25
+        # prog_dur = 0
+        # mult_dur = 0
 
-work_week = 0
+        # start_reps = 6
+        # prog_reps = 2
+        # mult_reps = 0
 
-progression_2 = []
+        # work_week = 0
 
-for week in range(1, plan.length, 2):
+        # progression_2 = []
 
-    rest = rest_week(week, plan.length)
-    workout = Workout(rest)
+        # for week in range(1, plan.length, 2):
 
-    if not rest:
+        #     rest = rest_week(week, plan.length)
+        #     workout = Workout(rest)
 
-        # Reps progression
-        if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
-            mult_reps += 1
+        #     if not rest:
 
-        work_week += 1
+        #         # Reps progression
+        #         if week > 0 and (work_week + 1) % 3 == 0 and mult_reps < 4:
+        #             mult_reps += 1
 
-    reps = start_reps + mult_reps * prog_reps
-    duration = start_dur + mult_dur * prog_dur
+        #         work_week += 1
 
-    # Warmup set
-    warmup = WorkSet(1)
-    warmup.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmup)
+        #     reps = start_reps + mult_reps * prog_reps
+        #     duration = start_dur + mult_dur * prog_dur
 
-    # Work Set
-    workset = WorkSet(reps)
-    workset.add_exercise(Exercise("Hills", duration))
-    workout.add_work_set(workset)
+        #     # Warmup set
+        #     warmup = WorkSet(1)
+        #     warmup.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmup)
 
-    # Warmdown set
-    warmdown = WorkSet(1)
-    warmdown.add_exercise(Exercise("Easy", 12))
-    workout.add_work_set(warmdown)
-    progression_2.append(workout)
+        #     # Work Set
+        #     workset = WorkSet(reps)
+        #     workset.add_exercise(Exercise("Hills", duration))
+        #     workout.add_work_set(workset)
 
-progression = [val for pair in zip(
-    progression_1, progression_2) for val in pair]
+        #     # Warmdown set
+        #     warmdown = WorkSet(1)
+        #     warmdown.add_exercise(Exercise("Easy", 12))
+        #     workout.add_work_set(warmdown)
+        #     progression_2.append(workout)
 
-plan.add_progression("B", progression)
+        # progression = [val for pair in zip(
+        #     progression_1, progression_2) for val in pair]
 
-# Day C
+        # plan.add_progression("B", progression)
 
-start_dur = 30
-progress = 5
-work_week = 0
-multiplier = 0
+        # # Day C
 
-progression = []
+        # start_dur = 30
+        # progress = 5
+        # work_week = 0
+        # multiplier = 0
 
-for week in range(plan.length):
+        # progression = []
 
-    rest = rest_week(week, plan.length)
+        # for week in range(plan.length):
 
-    workout = Workout(rest)
+        #     rest = rest_week(week, plan.length)
 
-    if not rest:
-        if week > 0 and (work_week + 1) % 3 == 0 and multiplier < 2:
-            multiplier += 1
+        #     workout = Workout(rest)
 
-        work_week += 1
-        duration = start_dur + multiplier * progress
+        #     if not rest:
+        #         if week > 0 and (work_week + 1) % 3 == 0 and multiplier < 2:
+        #             multiplier += 1
 
-    else:
-        duration = start_dur + multiplier * progress - 5
+        #         work_week += 1
+        #         duration = start_dur + multiplier * progress
 
-    workset = WorkSet(1)
-    workset.add_exercise(Exercise("Easy", duration))
-    workout.add_work_set(workset)
-    progression.append(workout)
-    plan.add_progression("C", progression)
+        #     else:
+        #         duration = start_dur + multiplier * progress - 5
 
-for day in plan.progressions:
-    print(day)
-    for week in plan.progressions[day]:
-        print(week)
+        #     workset = WorkSet(1)
+        #     workset.add_exercise(Exercise("Easy", duration))
+        #     workout.add_work_set(workset)
+        #     progression.append(workout)
+        #     plan.add_progression("C", progression)
+
+        # for day in plan.progressions:
+        #     print(day)
+        #     for week in plan.progressions[day]:
+        #         print(week)

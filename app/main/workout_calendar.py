@@ -1,3 +1,8 @@
+from calendar import HTMLCalendar
+from datetime import date
+from itertools import groupby
+
+
 class WorkoutCalendar(HTMLCalendar):
     '''
     A calendar renderer, see this blog entry for details:

@@ -16,6 +16,80 @@ Race week (reps and duration)
 - Alternating exercises each week...
 
 '''
+from datetime import date
+
+events = {
+    "2017 Big Fun Run Glasgow": date(2017, 7, 29),
+    "2017 Dog Jog Glasgow": date(2017, 7, 29),
+    "2017 Dog Jog Edinburgh": date(2017, 7, 30),
+    "2017 Big Fun Run Edinburgh": date(2017, 7, 30),
+    "2017 Big Fun Run Leeds": date(2017, 8, 5),
+    "2017 Dog Jog Leeds": date(2017, 8, 5),
+    "2017 Big Fun Run Nottingham": date(2017, 8, 6),
+    "2017 Dog Jog Nottingham": date(2017, 8, 6),
+    "2017 Big Fun Run Liverpool": date(2017, 8, 12),
+    "2017 Dog Jog Liverpool": date(2017, 8, 12),
+    "2017 Big Fun Run Sheffield": date(2017, 8, 13),
+    "2017 Dog Jog Sheffield": date(2017, 8, 13),
+    "2017 Big Fun Run Derby": date(2017, 8, 19),
+    "2017 Dog Jog Derby": date(2017, 8, 19),
+    "2017 Big Fun Run Manchester": date(2017, 8, 20),
+    "2017 Dog Jog Manchester": date(2017, 8, 20),
+    "2017 Big Fun Run Birmingham": date(2017, 9, 9),
+    "2017 Dog Jog Birmingham": date(2017, 9, 9),
+    "2017 Big Fun Run Coventry": date(2017, 9, 10),
+    "2017 Dog Jog Coventry": date(2017, 9, 10),
+    "2017 Scottish 10K": date(2017, 9, 24),
+    "2017 Scottish Half Marathon": date(2017, 9, 24),
+    "2017 BMF Kids Kilometre": date(2017, 10, 7),
+    "2017 BMF 1.5K Junior Race": date(2017, 10, 7),
+    "2017 BMF 2K Junior Race": date(2017, 10, 7),
+    "2017 BMF Junior 5K": date(2017, 10, 7),
+    "2017 BMF Supersonic 10K": date(2017, 10, 7),
+    "2017 BMF Supernova 5K": date(2017, 10, 7),
+    "2017 Bournemouth Half Marathon": date(2017, 10, 8),
+    "2017 Bournemouth Marathon": date(2017, 10, 8),
+    "2017 Big Fun Run Ipswich": date(2017, 10, 14),
+    "2017 Dog Jog Ipswich": date(2017, 10, 14),
+    "2017 Big Fun Run Milton Keynes": date(2017, 10, 15),
+    "2017 Dog Jog Milton Keynes": date(2017, 10, 15),
+    "2017 Big Fun Run Newcastle": date(2017, 10, 22),
+    "2017 Big Fun Run London(Crystal Palace Park)": date(2017, 10, 28),
+    "2017 Dog Jog London(Crystal Palace Park)": date(2017, 10, 28),
+    "2017 Big Fun Run London(Victoria Park)": date(2017, 10, 29),
+    "2017 Dog Jog London(Victoria Park)": date(2017, 10, 29),
+    "2017 Men's 10K Edinburgh": date(2017, 11, 5),
+    "2017 Supernova Kelpies - Friday": date(2017, 11, 10),
+    "2017 Supernova Kelpies - Saturday": date(2017, 11, 11),
+    "2017 Supernova Kelpies - Sunday": date(2017, 11, 12),
+    "2018 Supernova London": date(2018, 3, 31),
+    "2018 Kilomathon Scotland 13.1k": date(2018, 4, 8),
+    "2018 Mini Kilo Scotland 2.62k": date(2018, 4, 8),
+    "2018 Kilomathon Scotland 6.5k": date(2018, 4, 8),
+    "2018 EMF 10k": date(2018, 5, 26),
+    "2018 EMF 5k": date(2018, 5, 26),
+    "2018 EMF Junior 5K": date(2018, 5, 26),
+    "2018 EMF Kids Kilometre": date(2018, 5, 26),
+    "2018 EMF 1.5k Junior Race": date(2018, 5, 26),
+    "2018 EMF 2k Junior Race": date(2018, 5, 26),
+    "2018 Edinburgh Half Marathon": date(2018, 5, 27),
+    "2018 Edinburgh Marathon": date(2018, 5, 27),
+    "2018 EMF Hairy Haggis Team Relay": date(2018, 5, 27),
+    "2018 Men's 10K Glasgow": date(2018, 6, 17),
+    "2018 BMF Kids Kilometre": date(2018, 10, 6),
+    "2018 BMF 1.5K Junior Race": date(2018, 10, 6),
+    "2018 BMF 2K Junior Race": date(2018, 10, 6),
+    "2018 BMF Junior 5K": date(2018, 10, 6),
+    "2018 BMF Supersonic 10K": date(2018, 10, 6),
+    "2018 BMF Supernova 5K": date(2018, 10, 6),
+    "2018 Bournemouth Half Marathon": date(2018, 10, 7),
+    "2018 Bournemouth Marathon": date(2018, 10, 7),
+    "2018 Men's 10K Edinburgh": date(2018, 11, 4),
+    "2018 Supernova Kelpies - Friday": date(2018, 11, 9),
+    "2018 Supernova Kelpies - Saturday": date(2018, 11, 10),
+    "2018 Supernova Kelpies - Sunday": date(2018, 11, 11),
+}
+
 from collections import namedtuple
 RunEasy = namedtuple('RunEasy', 'start prog freq max rest')
 
@@ -25,27 +99,29 @@ class Plan(object):
     Model for a training plan
     '''
 
-    def __init__(self, distance, ability, plan_length, days_per_week):
-        self.distance = distance
+    def __init__(self, event, ability, days_per_week):
+        self.event = event
         self.ability = ability
-        self.plan_length = plan_length
         self.days_per_week = days_per_week
 
-        progs = {"5k": {"beg": {"A": easy_progress,
-                                "B": inteval_hills_progress,
-                                "C": easy_progress},
-                        "int": {"A": steady_int_progress,
-                                "B": easy_progress,
-                                "C": easy_progress,
-                                "D": easy_progress},
-                        "adv": {"A": steady_int_progress,
-                                "B": easy_progress,
-                                "C": easy_progress,
-                                "D": easy_progress}
+        self.distance = "5k"
+        self.plan_length = 12
+
+        progs = {"5k": {"Beginner": {"A": easy_progress,
+                                     "B": inteval_hills_progress,
+                                     "C": easy_progress},
+                        "Intermediate": {"A": steady_int_progress,
+                                         "B": easy_progress,
+                                         "C": easy_progress,
+                                         "D": easy_progress},
+                        "Advanced": {"A": steady_int_progress,
+                                     "B": easy_progress,
+                                     "C": easy_progress,
+                                     "D": easy_progress}
                         }
                  }
 
-        progress = progs[distance][ability]
+        progress = progs[self.distance][ability]
 
         self.schedule = self.create_plan(progress)
 
@@ -142,7 +218,7 @@ def easy_progress(plan_length, distance, ability):
     work_week = 0
 
     reps = 1
-    durations = {"beg": 25}
+    durations = {"Beginner": 25}
     duration = durations[ability]
 
     while week < plan_length:

@@ -1,0 +1,26 @@
+<div class="container">
+    <h2>Plan</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-condensed">
+        <tr>
+            <th><strong>Week</strong></th>
+            {% for day in plan.schedule[0] %}
+                <th><strong>Day {{ day }}</strong></th>
+            {% endfor %}
+            <th>Minutes Training for the Week</th>
+        </tr>
+        {% for week in plan.schedule %}
+            <tr>
+                {% set week_loop = loop %}
+                <td>{{ week_loop.index0 }}</td>
+                
+                {% for day in plan.schedule[week_loop.index0] %}
+                <td>
+                    <p>{{ plan.schedule[week_loop.index0][day] }}</p>
+                {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+      </table>
+    </div>
+</div>

@@ -11,49 +11,24 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-condensed">
             <tr>
-                <td>Distance</td><td>{{ distance }}</td>
+                <td>Event</td><td>{{ plan.event }}</td>
             </tr>
             <tr>
-                <td>Ability</td><td>{{ ability }}</td>
+                <td>Level</td><td>{{ plan.level }}</td>
             </tr>
             <tr>
-                <td>Length</td><td>{{ plan.plan_length }} weeks</td>
+                <td>Weeks to event</td><td>{{ plan.weeks_to_event }} </td>
             </tr>
         </table>
     </div>
 </div>
 
-<div class="container">
-    <h2>Plan</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped table-condensed">
-        <tr>
-            <th><strong>Week</strong></th>
-            {% for day in plan.schedule %}
-                <th><strong>Day {{ day }}</strong></th>
-            {% endfor %}
-            <th>Minutes Training for the Week</th>
-        </tr>
-        {% for week in plan.schedule["A"] %}
-            <tr>
-                {% set week_loop = loop %}
-                <td>{{ week_loop.index0 }}</td>
-                
-                {% for day in plan.schedule %}
-                <td>
-                    {% for set in plan.schedule[day][week_loop.index0] %}
-                        <p>{{ set }}</p>
-                    {% endfor %}
-                {% endfor %}
-                </td>
-
-                <td>{{ plan.calculate_duration_of_week(week_loop.index0) }}</td>
-            </tr>
+ <div class="container">
+    <div id="calendar">
+        {% for calendar in plan.calendars %}
+            {{ calendar|safe }}
         {% endfor %}
-      </table>
     </div>
-</div>
-
-
+</div> 
 
 {% endblock %}
