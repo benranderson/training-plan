@@ -89,7 +89,7 @@ class NameForm(FlaskForm):
 
 
 class PlanForm(FlaskForm):
-    event = SelectField('Select your event',
+    event = SelectField('Which event are you training for?',
                         choices=EVENTS,
                         default="2018 EMF 5k",)
 
@@ -97,7 +97,7 @@ class PlanForm(FlaskForm):
                         choices=LEVELS,
                         default='Beginner')
 
-    days = SelectMultipleField('Select your preferred training days',
+    days = SelectMultipleField('On which days would you like to train?',
                                choices=DAYS,
                                default=['0', '2', '4'])
 
