@@ -24,11 +24,14 @@
 </div>
 
  <div class="container">
-    <div id="calendar">
-        {% for calendar in plan.calendars %}
-            {{ calendar|safe }}
-        {% endfor %}
-    </div>
+     <h2>Schedule</h2>
+     <div class="table-responsive">
+        <div id="calendar">
+            {% for calendar in plan.calendars %}
+                {{ calendar|safe }}
+            {% endfor %}
+        </div>
+     </div>
 </div> 
 
 {% endblock %}
