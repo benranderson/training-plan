@@ -46,8 +46,8 @@ def test_Plan_add_progression_to_schedule(plan):
 #         assert "RunEasy" in plan.schedule[i:i + 7][0]
 
 
-def test_Plan_create_schedule_3_days(plan):
-    days = [0, 2, 4]
-    plan.create_schedule(days)
-    for date, workout in plan.schedule.items():
-        assert "RunEasy" in repr(workout)
+# def test_Plan_create_schedule_3_days(plan):
+#     days = [0, 2, 4]
+#     plan.create_schedule(days)
+#     for date, workout in plan.schedule.items():
+#         assert "RunEasy" in repr(workout)

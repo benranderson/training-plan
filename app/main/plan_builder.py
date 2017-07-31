@@ -6,12 +6,16 @@ from .progressions import run_easy_progress, interval_progress, hillsprint_progr
 
 
 class Plan:
+    '''
+    Represents running training plan for prescribed event and level. 
+    '''
 
     def __init__(self, event, level, current_date=datetime.date.today()):
         self.event = event
         self.distance, self.event_date = events_dict[self.event]
         self.distance = "5k"  # temporary
         self.level = level
+        self.level = "Beginner"  # temporary
         self.current_date = current_date
 
         self.start_date = self.determine_start_date()
@@ -31,12 +35,26 @@ class Plan:
                                                       self.event)
 
     def determine_start_date(self):
+        '''
+        None -> datetime
+
+        Return the start date of the training plan, which is assumed to be 
+        the next Monday following plan creation.
+        '''
+
         days_ahead = 0 - self.current_date.weekday()
         if days_ahead <= 0:  # Target day already happened this week
             days_ahead += 7
         return self.current_date + datetime.timedelta(days_ahead)
 
     def determine_schedule_weeks(self):
+        '''
+        None -> matrix
+
+        Return a matrix (list of lists) representing training plan period.
+        Each row represents a week; week entries are datetime.date values.
+        '''
+
         days_ahead = 6 - self.event_date.weekday()
         end_date = self.event_date + datetime.timedelta(days_ahead)
         days = [self.start_date + datetime.timedelta(n)
@@ -44,10 +62,20 @@ class Plan:
         return [days[i:i + 7] for i in range(0, len(days), 7)]
 
     def add_progression_to_schedule(self, day, progression):
+        '''
+        int, list -> None
+
+        Populates plan schedule with given progression on specified day.
+        '''
         for step, week in zip(progression, self.schedule_weeks):
             self.schedule[week[day]] = step
 
     def create_schedule(self, days):
+        '''
+        list -> None
+
+        Creates plan schedule based on prescribed list of training days.
+        '''
 
         builders = {"5k": {"Beginner": self.builder_5k_beg}}
 
@@ -58,6 +86,13 @@ class Plan:
             self.add_progression_to_schedule(day, progression)
 
     def builder_5k_beg(self, weeks, days):
+        '''
+        int, int -> matrix
+
+        Return matrix (list of lists) representing 5k Beginner progressions.
+        Based on specified number of weeks and for specified number of training
+        days a week.
+        '''
 
         progressions = []
 
@@ -74,6 +109,10 @@ class Plan:
         return progressions
 
     def create_cals(self):
+        '''
+        Create list of calendars to render schedule.
+        '''
+
         year = 0
         month = 0
         for entry in self.schedule:
@@ -85,6 +124,9 @@ class Plan:
 
 
 class WorkoutCalendar(calendar.HTMLCalendar):
+    '''
+    A calendar renderer.
+    '''
 
     def __init__(self, schedule):
         super(WorkoutCalendar, self).__init__()

@@ -5,6 +5,38 @@ Web application for creating bespoke running training plans based on your race d
 
 ![](images/screenshot.png)
 
+## Development setup (UNIX)
+
+First clone the repository to desired folder location:
+
+```sh
+$ git clone https://github.com/benranderson/training-plan.git
+```
+
+Navigate into app directory:
+
+```sh
+$ cd training-plan
+```
+
+Install dependencies:
+
+```sh
+$ pip install -r requirements.txt
+```
+
+Run the server:
+
+```sh
+$ python manage.py runserver
+```
+
+To run unit tests:
+
+```sh
+$ python manage.py test
+```
+
 ## Release History
 
 * 0.0.1

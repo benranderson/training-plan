@@ -3,7 +3,9 @@ import datetime
 
 def rest_week(week, plan_length):
     '''
-    Determine if current week is a rest week
+    int -> boolean
+
+    Determine if current week is a rest week.
 
     Plans work on a 4 week block, with every 4th week being an easier week.
     Runner has at least 2 weeks, and a maximum of 5 weeks before they get an
@@ -23,6 +25,8 @@ def rest_week(week, plan_length):
 
 def run_easy_progress(weeks, start=25, freq=3, max=35):
     '''
+    number, number, number, number -> iterator
+
     Easy running progression:
     - Every 3rd week the easy running will have a progression
     - The progressions will be: Every 3rd week the easy running total will
@@ -51,6 +55,8 @@ def run_easy_progress(weeks, start=25, freq=3, max=35):
 def interval_progress(weeks, start_week=0, step=1, reps_start=5, reps_freq=1,
                       reps_max=8, fast_start=0.5, fast_freq=2, fast_max=1):
     '''
+    -> iterator
+
     Interval progression:
     - Every intervals session (not including easier weeks) will have a
     progression
@@ -84,6 +90,8 @@ def interval_progress(weeks, start_week=0, step=1, reps_start=5, reps_freq=1,
 def hillsprint_progress(weeks, start_week=1, step=2, reps_start=6, reps_freq=3,
                         reps_max=8):
     '''
+    -> iterator
+
     Hills progression:
     - Every 3rd hills session (not including easier weeks) will have a
     progression 
@@ -107,16 +115,12 @@ def hillsprint_progress(weeks, start_week=1, step=2, reps_start=6, reps_freq=3,
         week += step
 
 
-class Workout:
+class RunEasy:
+    '''
+    Represents an easy run workout.
+    '''
 
-    def __init__(self, date=datetime.date.today()):
-        self.date = date
-
-
-class RunEasy(Workout):
-
-    def __init__(self, duration, date=datetime.date.today()):
-        super().__init__(date)
+    def __init__(self, duration):
         self.description = "Run Easy"
         self.duration = duration
         self.warmup = None
@@ -136,10 +140,12 @@ class RunEasy(Workout):
         return "Run for {0} minutes at an easy pace".format(self.duration)
 
 
-class Interval(Workout):
+class Interval:
+    '''
+    Represents an interval training workout.
+    '''
 
     def __init__(self, reps, fast, slow):
-        super().__init__(datetime.date.today())
         self.description = "Intervals"
         self.reps = reps
         self.fast = fast
@@ -168,10 +174,12 @@ class Interval(Workout):
         return warmup + work + warmdown
 
 
-class HillSprint(Workout):
+class HillSprint:
+    '''
+    Represents a hill sprint workout.
+    '''
 
     def __init__(self, reps, sprint):
-        super().__init__(datetime.date.today())
         self.description = "Hill Sprint"
         self.reps = reps
         self.sprint = sprint
