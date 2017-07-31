@@ -1,3 +1,7 @@
+.vscode/
+
+sandbox.py
+
 *.py[cod]
 
 # C extensions
