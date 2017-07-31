@@ -31,7 +31,13 @@ Run the server:
 $ python manage.py runserver
 ```
 
-To run unit tests:
+To run unit tests, first install testing dependencies:
+
+```sh
+$ pip install -r requirements/dev.txt
+```
+
+Then run tests:
 
 ```sh
 $ python manage.py test

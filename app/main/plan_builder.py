@@ -7,15 +7,13 @@ from .progressions import run_easy_progress, interval_progress, hillsprint_progr
 
 class Plan:
     '''
-    Represents running training plan for prescribed event and level. 
+    Represents running training plan for prescribed event and level.
     '''
 
     def __init__(self, event, level, current_date=datetime.date.today()):
         self.event = event
         self.distance, self.event_date = events_dict[self.event]
-        self.distance = "5k"  # temporary
         self.level = level
-        self.level = "Beginner"  # temporary
         self.current_date = current_date
 
         self.start_date = self.determine_start_date()
@@ -38,7 +36,7 @@ class Plan:
         '''
         None -> datetime
 
-        Return the start date of the training plan, which is assumed to be 
+        Return the start date of the training plan, which is assumed to be
         the next Monday following plan creation.
         '''
 
@@ -77,7 +75,18 @@ class Plan:
         Creates plan schedule based on prescribed list of training days.
         '''
 
-        builders = {"5k": {"Beginner": self.builder_5k_beg}}
+        builders = {"5k": {"Beginner": self.builder_5k_beg,
+                           "Intermediate": self.builder_5k_int,
+                           "Advanced": self.builder_5k_beg},
+                    "10k": {"Beginner": self.builder_5k_beg,
+                            "Intermediate": self.builder_5k_beg,
+                            "Advanced": self.builder_5k_beg},
+                    "half": {"Beginner": self.builder_5k_beg,
+                             "Intermediate": self.builder_5k_beg,
+                             "Advanced": self.builder_5k_beg},
+                    "full": {"Beginner": self.builder_5k_beg,
+                             "Intermediate": self.builder_5k_beg,
+                             "Advanced": self.builder_5k_beg}}
 
         progressions = builders[self.distance][self.level](
             len(self.schedule_weeks), len(days))
@@ -90,6 +99,29 @@ class Plan:
         int, int -> matrix
 
         Return matrix (list of lists) representing 5k Beginner progressions.
+        Based on specified number of weeks and for specified number of training
+        days a week.
+        '''
+
+        progressions = []
+
+        if days > 0:
+            progressions.append(list(run_easy_progress(weeks)))
+        if days > 1:
+            ints = list(interval_progress(weeks, start_week=0, step=2))
+            hills = list(hillsprint_progress(weeks, start_week=1, step=2))
+            progress = [val for pair in zip(ints, hills) for val in pair]
+            progressions.append(progress)
+        if days > 2:
+            progressions.append(list(run_easy_progress(weeks)))
+
+        return progressions
+
+    def builder_5k_int(self, weeks, days):
+        '''
+        int, int -> matrix
+
+        Return matrix (list of lists) representing 5k Intermediate progressions.
         Based on specified number of weeks and for specified number of training
         days a week.
         '''
