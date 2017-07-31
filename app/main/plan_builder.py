@@ -2,7 +2,7 @@ import datetime
 import calendar
 
 from .events import events_dict
-from .progressions import run_easy_progress, interval_progress
+from .progressions import run_easy_progress, interval_progress, hillsprint_progress
 
 
 class Plan:
@@ -63,9 +63,12 @@ class Plan:
 
         if days > 0:
             progressions.append(list(run_easy_progress(weeks)))
-        elif days > 1:
-            progressions.append(list(interval_progress(weeks)))
-        else:
+        if days > 1:
+            ints = list(interval_progress(weeks, start_week=0, step=2))
+            hills = list(hillsprint_progress(weeks, start_week=1, step=2))
+            progress = [val for pair in zip(ints, hills) for val in pair]
+            progressions.append(progress)
+        if days > 2:
             progressions.append(list(run_easy_progress(weeks)))
 
         return progressions

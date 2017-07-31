@@ -12,5 +12,7 @@ def index():
         level = dict(LEVELS).get(form.level.data)
         # days_per_week = int(form.days_per_week.data)
         plan = Plan(event, level)
+        plan.create_schedule([0, 2, 4])
+        plan.create_cals()
         return render_template('plan.html', plan=plan)
     return render_template('index.html', form=form)

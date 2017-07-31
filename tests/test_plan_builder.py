@@ -32,11 +32,22 @@ def test_Plan_weeks_to_event(plan):
     assert plan.weeks_to_event == 8
 
 
-# def test_Plan_builder_5k_beg(plan):
-#     assert len(plan.builder_5k_beg(8, 1)) == 8
+def test_Plan_add_progression_to_schedule(plan):
+    day = 0
+    progression = [25, 25, 25, 25]
+    plan.add_progression_to_schedule(day, progression)
+    assert len(plan.schedule) == 4
 
 
-# def test_builder_5k_beg_day_A(plan):
-#     expected = [25, 25, 30, 25, 30, 30, 30, 30, 25]
-#     for i, week in enumerate(plan.schedule):
-#         assert str(expected[i]) in repr(week["A"]), "week " + str(i)
+# def test_Plan_create_schedule_1_day(plan):
+#     days = [0]
+#     plan.create_schedule(days)
+#     for i in range(0, len(plan.schedule), 7):
+#         assert "RunEasy" in plan.schedule[i:i + 7][0]
+
+
+def test_Plan_create_schedule_3_days(plan):
+    days = [0, 2, 4]
+    plan.create_schedule(days)
+    for date, workout in plan.schedule.items():
+        assert "RunEasy" in repr(workout)
