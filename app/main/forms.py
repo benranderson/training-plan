@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, SubmitField
+from wtforms import StringField, IntegerField, SelectField, SubmitField, SelectMultipleField
 from wtforms.validators import Required
 
 DISTANCES = [('5k', '5k'),
@@ -74,6 +74,14 @@ LEVELS = [('beg', 'Beginner'),
           ('adv', 'Advanced')
           ]
 
+DAYS = [('0', 'Monday'),
+        ('1', 'Tuesday'),
+        ('2', 'Wednesday'),
+        ('3', 'Thursday'),
+        ('4', 'Friday'),
+        ('5', 'Saturday'),
+        ('6', 'Sunday')]
+
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[Required()])
@@ -82,15 +90,15 @@ class NameForm(FlaskForm):
 
 class PlanForm(FlaskForm):
     event = SelectField('Select your event',
-                        default="2017 Big Fun Run Glasgow",
-                        choices=EVENTS)
+                        choices=EVENTS,
+                        default="2018 EMF 5k",)
 
     level = SelectField('What is your current level?',
-                        default='Beginner',
-                        choices=LEVELS)
+                        choices=LEVELS,
+                        default='Beginner')
 
-    # days_per_week = SelectField('How many days a week can you train?',
-    #                             default='3',
-    #                             choices=[('1', '1'), ('2', '2'), ('3', '3')])
+    days = SelectMultipleField('Select your preferred training days',
+                               choices=DAYS,
+                               default=['0', '2', '4'])
 
     submit = SubmitField('Submit')
