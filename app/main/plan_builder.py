@@ -235,4 +235,4 @@ class WorkoutCalendar(calendar.HTMLCalendar):
         '''
         Renders a day cell
         '''
-        return '<td class="{0}" style="vertical-align: middle;">{1}</td>'.format(cssclass, body)
+        return '<td class="{0}" style="vertical-align: top">{1}</td>'.format(cssclass, body)
