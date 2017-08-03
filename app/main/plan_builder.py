@@ -101,7 +101,7 @@ class Plan:
             self.add_progression_to_schedule(day, progression)
 
         # Populate schedule with race day
-        self.schedule[self.event_date] = "RACE DAY!"
+        self.schedule[self.event_date] = "EVENT DAY!"
 
     def builder_5k_beg(self, weeks, days):
         '''
@@ -194,7 +194,7 @@ class WorkoutCalendar(calendar.HTMLCalendar):
         entry = self.schedule.get(date_obj)
 
         # Format race day
-        if entry == "RACE DAY!":
+        if entry == "EVENT DAY!":
             formatted_date = str(day)
             body = []
             body.append('<p> {0} </p>'.format(formatted_date))
