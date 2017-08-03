@@ -1,14 +1,6 @@
 import datetime
 
 events_dict = {
-    "2017 Big Fun Run Glasgow": ("5k", datetime.date(2017, 7, 29)),
-    "2017 Dog Jog Glasgow": ("5k", datetime.date(2017, 7, 29)),
-    "2017 Dog Jog Edinburgh": ("5k", datetime.date(2017, 7, 30)),
-    "2017 Big Fun Run Edinburgh": ("5k", datetime.date(2017, 7, 30)),
-    "2017 Big Fun Run Leeds": ("5k", datetime.date(2017, 8, 5)),
-    "2017 Dog Jog Leeds": ("5k", datetime.date(2017, 8, 5)),
-    "2017 Big Fun Run Nottingham": ("5k", datetime.date(2017, 8, 6)),
-    "2017 Dog Jog Nottingham": ("5k", datetime.date(2017, 8, 6)),
     "2017 Big Fun Run Liverpool": ("5k", datetime.date(2017, 8, 12)),
     "2017 Dog Jog Liverpool": ("5k", datetime.date(2017, 8, 12)),
     "2017 Big Fun Run Sheffield": ("5k", datetime.date(2017, 8, 13)),

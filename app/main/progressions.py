@@ -48,7 +48,7 @@ def run_easy_progress(weeks, start=25, freq=3, max=35):
             wk_dur = dur
         else:
             wk_dur = dur - 5
-        yield RunEasy(wk_dur)
+        yield Run("Easy", wk_dur)
         week += 1
 
 
@@ -94,8 +94,8 @@ def hillsprint_progress(weeks, start_week=1, step=2, reps_start=6, reps_freq=3,
 
     Hills progression:
     - Every 3rd hills session (not including easier weeks) will have a
-    progression 
-    - The progressions will be: Increase number of reps by 2 
+    progression
+    - The progressions will be: Increase number of reps by 2
     - On an easier week: Go back to previous session. So week by week the
     number of reps will look like 6,6,8,6,8,10
     - On a target race week: Runeasy(12) 6*Hillsprint(0.25) Runeasy(12)
@@ -115,13 +115,79 @@ def hillsprint_progress(weeks, start_week=1, step=2, reps_start=6, reps_freq=3,
         week += step
 
 
-class RunEasy:
+def tempo_progress(weeks, start_week=1, step=2, freq=3):
     '''
-    Represents an easy run workout.
+    int, int, int, int -> iterator
+
+    Tempo progression:
+    - Every 3rd tempo session will have a progression
+    - The progresssions will be: 
+    - Runeasy(5) Runsteady(10) Runeasy(10) Runtempo(5) Runeasy(5)
+    - Runeasy(5) Runsteady(15) Runeasy(10) Runtempo(5) Runeasy(5)
+    - Runeasy(10) Runsteady(15) Runeasy(10) Runtempo(5) Runeasy(5)
+    - Runeasy(10) Runsteady(15) Runeasy(5) Runtempo(5) Runeasy(10)
+    - Runeasy(10) Runsteady(10) Runeasy(5) Runtempo(10) Runeasy(10)
+    - Runeasy(10) Runsteady(10) Runtempo(10) Runeasy(10)
+    - On an easier week: the session will be the same as the week before
+    '''
+    week = start_week
+    durations = [[5, 10, 10, 5, 5],
+                 [5, 15, 10, 5, 5],
+                 [10, 15, 10, 5, 5],
+                 [10, 15, 5, 5, 10],
+                 [10, 10, 5, 10, 10],
+                 [10, 10, 10, 10, 10]]
+
+    i = 0
+
+    while week < weeks:
+        if week > 0:
+            if not rest_week(week, weeks):
+                if ((week + start_week) / step) % freq == 0 and i < 5:
+                    i += 1
+
+        yield Tempo(durations[i][0], durations[i][1], durations[i][2],
+                    durations[i][3], durations[i][4])
+        week += step
+
+
+class Tempo:
+    '''
+    Represents a tempo workout.
     '''
 
-    def __init__(self, duration):
-        self.description = "Run Easy"
+    def __init__(self, warmup, steady, easy, tempo, warmdown):
+        self.warmup = warmup
+        self.steady = steady
+        self.easy = easy
+        self.tempo = tempo
+        self.warmdown = warmdown
+        self.background_css = 'btn-primary'
+
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "RunEasy({0}m), Runsteady({1}m) Runeasy({2}m) Runtempo({3}m) Runeasy({4}m)".format(self.warmup,
+                                                                                                  self.steady,
+                                                                                                  self.easy,
+                                                                                                  self.tempo,
+                                                                                                  self.warmdown)
+
+    def __str__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "Run for {0} minutes at an easy pace".format(self.duration)
+
+
+class Run:
+    '''
+    Represents a run workout.
+    '''
+
+    def __init__(self, pace, duration):
+        self.pace = pace
         self.duration = duration
         self.warmup = None
         self.warmdown = None
@@ -131,7 +197,7 @@ class RunEasy:
         '''
         Return a more human-readable representation
         '''
-        return "RunEasy({0})".format(self.duration)
+        return "Run{0}({1}m)".format(self.pace, self.duration)
 
     def __str__(self):
         '''
@@ -150,8 +216,8 @@ class Interval:
         self.reps = reps
         self.fast = fast
         self.slow = slow
-        self.warmup = RunEasy(10)
-        self.warmdown = RunEasy(10)
+        self.warmup = Run("Easy", 10)
+        self.warmdown = Run("Easy", 10)
         self.duration = self.calculate_duration()
         self.background_css = 'btn-danger'
 
@@ -159,13 +225,17 @@ class Interval:
         '''
         Return a more human-readable representation
         '''
-        return "{0}x Interval({1}, {2})".format(self.reps, self.fast, self.slow)
+        fast = mins_to_seconds_formatter(self.fast)
+        slow = mins_to_seconds_formatter(self.slow)
+        return "{0}, {1}x Interval({2}, {3}), {4}".format(repr(self.warmup), self.reps, fast, slow, repr(self.warmdown))
 
     def __str__(self):
         '''
         Return a more human-readable representation
         '''
-        return "Run fast for {0} minutes then run at an easy pace for {1} minutes.  Repeat {2} times.".format(self.fast, self.slow, self.reps)
+        fast = mins_to_seconds_formatter(self.fast)
+        slow = mins_to_seconds_formatter(self.slow)
+        return "Run fast for {0} then run at an easy pace for {1}.  Repeat {2} times.".format(fast, slow, self.reps)
 
     def calculate_duration(self):
         warmup = self.warmup.duration
@@ -183,8 +253,8 @@ class HillSprint:
         self.description = "Hill Sprint"
         self.reps = reps
         self.sprint = sprint
-        self.warmup = RunEasy(12)
-        self.warmdown = RunEasy(12)
+        self.warmup = Run("Easy", 12)
+        self.warmdown = Run("Easy", 12)
         self.duration = self.calculate_duration()
         self.background_css = 'btn-warning'
 
@@ -192,16 +262,22 @@ class HillSprint:
         '''
         Return a more human-readable representation
         '''
-        return "{0}x HillSprint({1})".format(self.reps, self.sprint)
+        sprint = mins_to_seconds_formatter(self.sprint)
+        return "{0}, {1}x HillSprint({2}), {3}".format(repr(self.warmup), self.reps, sprint, repr(self.warmdown))
 
     def __str__(self):
         '''
         Return a more human-readable representation
         '''
-        return "Run fast uphill for {0} minutes.  Repeat {1} times.".format(self.sprint, self.reps)
+        sprint = mins_to_seconds_formatter(self.sprint)
+        return "Run fast uphill for {0}.  Repeat {1} times.".format(sprint, self.reps)
 
     def calculate_duration(self):
         warmup = self.warmup.duration
         work = self.reps * self.sprint
         warmdown = self.warmdown.duration
         return warmup + work + warmdown
+
+
+def mins_to_seconds_formatter(dur_in_mins):
+    return "{}s".format(int(dur_in_mins * 60))

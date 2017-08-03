@@ -2,7 +2,7 @@ import datetime
 import calendar
 
 from .events import events_dict
-from .progressions import run_easy_progress, interval_progress, hillsprint_progress
+from .progressions import run_easy_progress, interval_progress, hillsprint_progress, tempo_progress
 
 
 class Plan:
@@ -75,24 +75,32 @@ class Plan:
         Creates plan schedule based on prescribed list of training days.
         '''
 
-        builders = {"5k": {"Beginner": self.builder_5k_beg,
-                           "Intermediate": self.builder_5k_int,
-                           "Advanced": self.builder_5k_beg},
-                    "10k": {"Beginner": self.builder_5k_beg,
-                            "Intermediate": self.builder_5k_beg,
-                            "Advanced": self.builder_5k_beg},
-                    "half": {"Beginner": self.builder_5k_beg,
-                             "Intermediate": self.builder_5k_beg,
-                             "Advanced": self.builder_5k_beg},
-                    "full": {"Beginner": self.builder_5k_beg,
-                             "Intermediate": self.builder_5k_beg,
-                             "Advanced": self.builder_5k_beg}}
+        def builder_dict(distance, level, weeks, days):
+            distance_dict = {
+                "5k": {"Beginner": self.builder_5k_beg,
+                       "Intermediate": self.builder_5k_int,
+                       "Advanced": self.builder_5k_beg},
+                "10k": {"Beginner": self.builder_5k_beg,
+                        "Intermediate": self.builder_5k_beg,
+                        "Advanced": self.builder_5k_beg},
+                "half": {"Beginner": self.builder_5k_beg,
+                         "Intermediate": self.builder_5k_beg,
+                         "Advanced": self.builder_5k_beg},
+                "full": {"Beginner": self.builder_5k_beg,
+                         "Intermediate": self.builder_5k_beg,
+                         "Advanced": self.builder_5k_beg}
+            }.get(distance, None)
 
-        progressions = builders[self.distance][self.level](
-            len(self.schedule_weeks), len(days))
+            return distance_dict[level](weeks, days)
+
+        progressions = builder_dict(
+            self.distance, self.level, len(self.schedule_weeks), len(days))
 
         for day, progression in zip(days, progressions):
             self.add_progression_to_schedule(day, progression)
+
+        # Populate schedule with race day
+        self.schedule[self.event_date] = "RACE DAY!"
 
     def builder_5k_beg(self, weeks, days):
         '''
@@ -129,14 +137,15 @@ class Plan:
         progressions = []
 
         if days > 0:
-            progressions.append(list(run_easy_progress(weeks)))
-        if days > 1:
-            ints = list(interval_progress(weeks, start_week=0, step=2))
-            hills = list(hillsprint_progress(weeks, start_week=1, step=2))
-            progress = [val for pair in zip(ints, hills) for val in pair]
+            tempos = list(tempo_progress(weeks, start_week=0, step=2, freq=3))
+            ints = list(interval_progress(weeks, start_week=1, step=2))
+            progress = [val for pair in zip(tempos, ints) for val in pair]
             progressions.append(progress)
-        if days > 2:
+        if days > 1:
             progressions.append(list(run_easy_progress(weeks)))
+        if days > 2:
+            progressions.append(
+                list(hillsprint_progress(weeks, start_week=0, step=1)))
 
         return progressions
 
@@ -145,10 +154,10 @@ class Plan:
         Create list of calendars to render schedule.
         '''
 
-        year = 0
+        year = datetime.date.today().year
         month = 0
         for entry in self.schedule:
-            if entry.year > year or entry.month > month:
+            if entry.month > month:
                 year = entry.year
                 month = entry.month
                 self.calendars.append(WorkoutCalendar(
@@ -180,6 +189,17 @@ class WorkoutCalendar(calendar.HTMLCalendar):
             return self.day_cell(cssclass, day)
 
         entry = self.schedule.get(date_obj)
+
+        # Format race day
+        if entry == "RACE DAY!":
+            formatted_date = str(day)
+            body = []
+            body.append('<p> {0} </p>'.format(formatted_date))
+            body.append(
+                '<a class="btn btn-block {0} calendar-link">'.format('btn-info'))
+            body.append(entry)
+            return self.day_cell(cssclass, '{0}'.format(''.join(body)))
+
         background_css = entry.background_css
         formatted_date = str(day)
         body = []
