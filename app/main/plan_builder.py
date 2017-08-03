@@ -158,11 +158,13 @@ class Plan:
         year = datetime.date.today().year
         month = 0
         for entry in self.schedule:
-            if entry.month > month:
+            if entry.year > year:
                 year = entry.year
                 month = entry.month
-                self.calendars.append(WorkoutCalendar(
-                    self.schedule).formatmonth(year, month))
+            if entry.month > month:
+                month = entry.month
+            self.calendars.append(WorkoutCalendar(
+                self.schedule).formatmonth(year, month))
 
 
 class WorkoutCalendar(calendar.HTMLCalendar):
