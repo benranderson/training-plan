@@ -2,7 +2,8 @@ import datetime
 import calendar
 
 from .events import events_dict
-from .progressions import run_easy_progress, interval_progress, hillsprint_progress, tempo_progress
+from .progressions import run_easy_progress, interval_progress, \
+    hillsprint_progress, tempo_progress
 
 
 class Plan:
