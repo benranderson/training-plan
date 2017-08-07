@@ -11,7 +11,7 @@ def index():
     if form.validate_on_submit():
         event = form.event.data
         level = dict(LEVELS).get(form.level.data)
-        days = [int(day) for day in form.days.data]
+        days = [day for day in form.days.data]
 
         plan = Plan(event, level)
         plan.create_schedule(days)

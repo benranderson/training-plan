@@ -169,7 +169,8 @@ class Plan:
 
 class WorkoutCalendar(calendar.HTMLCalendar):
     '''
-    A calendar renderer.
+    A calendar renderer, see this blog entry for details:
+    * http://uggedal.com/journal/creating-a-flexible-monthly-calendar-in-django/
     '''
 
     def __init__(self, schedule):

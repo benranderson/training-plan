@@ -1,18 +1,54 @@
-{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Training Plan App - Homepage{% endblock %}
+{% extends "base.html" %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>Hello,
-        {% if current_user.is_authenticated %}
-            {{ current_user.username }}!
-        {% else %}
-            Runner!
-        {% endif %}</h1>
-</div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
-</div>
-{% endblock %}
+{% import "bootstrap/utils.html" as utils %}
+
+{% macro render_field(field, s) -%}
+    {% if field.type != 'HiddenField' %}
+        <label for="{{ field.id }}">{{ field.label }}</label>
+       {{ field(size=s, class="form-control", **kwargs) }}
+    {% endif %}
+{%- endmacro %}
+
+{% block content %}
+   <div class="container">
+        {%- with messages = get_flashed_messages(with_categories=True) %}
+        {%- if messages %}
+            <div class="row">
+                <div class="col-md-12">
+                    {{utils.flashed_messages(messages)}}
+                </div>
+            </div>
+        {%- endif %}
+        {%- endwith %}
+
+        <div class="jumbotron">
+            <h1>Hello, Runner!</h1>
+        </div>
+
+        <div class="col-md-12">
+            <form class="form" method="post" role="form">
+                {{ form.hidden_tag() }}
+                {{ wtf.form_errors(form, hiddens="only") }}
+                
+                {{ form.event.label }}
+                {{ form.event(class="form-control") }}
+                <br>
+                
+                {{ form.level.label }}
+                {{ form.level(class="form-control") }}
+                <br>
+                
+                {{ render_field(form.days, 7) }}
+                <br>
+
+                {{ form.submit(class="btn btn-primary btn-block") }}
+
+            </form>
+        </div>
+
+   </div>
+{%- endblock %}
+
+
