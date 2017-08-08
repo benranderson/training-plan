@@ -11,12 +11,14 @@
 
 {% block styles -%}
     {{super()}}
-    <link rel="stylesheet" type="text/css"
-          href="{{url_for('static', filename='styles.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='font-awesome-4.7.0/css/font-awesome.min.css')}}">
 {% endblock %}
 
 {% block navbar %}
-{{nav.frontend_top.render()}}
+<nav class = "navbar">
+    {{nav.frontend_top.render()}}
+</nav>
 {% endblock %}
 
 

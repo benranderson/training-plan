@@ -13,6 +13,7 @@
 
 {% block content %}
    <div class="container">
+
         {%- with messages = get_flashed_messages(with_categories=True) %}
         {%- if messages %}
             <div class="row">
@@ -25,6 +26,7 @@
 
         <div class="jumbotron">
             <h1>Hello, Runner!</h1>
+            <i class="fa fa-heartbeat fa-5x"></i>
         </div>
 
         <div class="col-md-12">

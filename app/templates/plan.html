@@ -1,40 +1,45 @@
 {% extends "base.html" %}
 
+{% import "bootstrap/utils.html" as utils %}
+
 {% block content %}
 <div class="container">
 
-    <div class="page-header">
+    <div class="jumbotron">
         <h1>Training Plan</h1>
     </div>
 
-    <h2>Summary</h2>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped table-condensed">
-            <tr>
-                <td>Event</td><td>{{ plan.event }}</td>
-            </tr>
-            <tr>
-                <td>Level</td><td>{{ plan.level }}</td>
-            </tr>
-            <tr>
-                <td>Weeks to event</td><td>{{ plan.weeks_to_event }} </td>
-            </tr>
-        </table>
-    </div>
     <div>
         <a href="{{ url_for('main.index') }}"><button type="button" class="btn btn-default">Back</button></a>
     </div>
-</div>
 
- <div class="container">
-     <h2>Schedule</h2>
-     <div class="table-responsive">
-        <div id="calendar">
-            {% for calendar in plan.calendars %}
-                {{ calendar|safe }}
-            {% endfor %}
+    <div>
+        <h2>Summary</h2>
+        <p>An overview of your selected training plan.</p>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <tr>
+                    <td><b>Event</b></td><td>{{ plan.event }}</td>
+                </tr>
+                <tr>
+                    <td><b>Level</b></td><td>{{ plan.level }}</td>
+                </tr>
+                <tr>
+                    <td><b>Weeks to event</b></td><td>{{ plan.weeks_to_event }} </td>
+                </tr>
+            </table>
         </div>
-     </div>
-</div> 
+    </div>
+
+    <div>
+        <h2>Schedule</h2>
+        <div class="table-responsive">
+            <div class="calendar">
+                {% for calendar in plan.calendars %}
+                    {{ calendar|safe }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
