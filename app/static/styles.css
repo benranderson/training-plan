@@ -15,9 +15,13 @@
 }
 
 .today {
-    background-color: #F08080;
+    background-color: lightgrey;
 }
 
 .btn-block {
     white-space: normal;
+}
+
+.th.month {
+    color: #001F3F;
 }
