@@ -159,6 +159,12 @@ class EventDay:
     def __init__(self, event):
         self.title = event
 
+    def __repr__(self):
+        '''
+        Return a more human-readable representation
+        '''
+        return "EVENT DAY!"
+
 
 class Tempo:
     '''

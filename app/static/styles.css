@@ -1,15 +1,18 @@
-.container {
+/* .container {
     margin: 15px;
-}
+} */
 
 .jumbotron {
-  margin-top: 1em;
-  text-align: center;
-  background-color: #001F3F;
-  color:hsla(210, 100%, 75%, 1.0);
+    text-align: center;
+    background-color: #001F3F;
+    color:hsla(210, 100%, 75%, 1.0);
 }
 
-.month>tbody>tr>td {
+.td-info  {
+    text-align: center;
+}
+
+/* .month>tbody>tr>td {
     width: 14%;
     height: 100px;
 }
@@ -24,4 +27,4 @@
 
 .th.month {
     color: #001F3F;
-}
+} */

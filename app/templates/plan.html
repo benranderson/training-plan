@@ -34,27 +34,32 @@
     </div>
 
     <div>
-        <a href="{{ url_for('main.index') }}"><button type="button" class="btn btn-default">Back</button></a>
+        <p><a href="{{ url_for('main.index') }}"><button type="button" class="btn btn-default">Back</button></a></p>
     </div>
 
     <div>
         <h2>Summary</h2>
-        <p>An overview of your selected training plan.</p>
         <div class="table-responsive">
             <table class="table table-hover table-bordered">
                 <tr>
-                    <td><b>Event</b></td><td>{{ plan.event }}</td>
+                    <td><b>Event</b></td><td class="td-info" >{{ plan.event }}</td>
                 </tr>
                 <tr>
-                    <td><b>Level</b></td><td>{{ plan.level }}</td>
+                    <td><b>Level</b></td><td class="td-info" >{{ plan.level }}</td>
                 </tr>
                 <tr>
-                    <td><b>Weeks to event</b></td><td>{{ plan.weeks_to_event }} </td>
+                    <td><b>Event Date</b></td><td class="td-info" >{{ plan.event_date_str }}</td>
+                </tr>
+                <tr>
+                    <td><b>Training Plan Length</b></td><td class="td-info" >{{ plan.weeks_to_event }} weeks</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <div id='calendar'></div>
+    <div>
+        <h2>Schedule</h2>
+        <p><div id='calendar'></div></p>
+    </div>
 
 {% endblock %}

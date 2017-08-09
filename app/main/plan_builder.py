@@ -18,6 +18,8 @@ class Plan:
         self.level = level
         self.current_date = current_date
 
+        self.event_date_str = self.event_date.strftime('%d %b %Y')
+
         self.start_date = self.determine_start_date()
         self.schedule_weeks = self.determine_schedule_weeks()
         self.weeks_to_event = len(self.schedule_weeks)
