@@ -151,10 +151,22 @@ def tempo_progress(weeks, start_week=1, step=2, freq=3):
         week += step
 
 
+class EventDay:
+
+    color = '#001F3F'
+    textColor = 'hsla(210, 100%, 75%, 1.0)'
+
+    def __init__(self, event):
+        self.title = event
+
+
 class Tempo:
     '''
     Represents a tempo workout.
     '''
+
+    color = '#0074D9'
+    textColor = 'hsla(208, 100%, 85%, 1.0)'
 
     def __init__(self, warmup, steady, easy, tempo, warmdown):
         self.warmup = warmup
@@ -186,6 +198,9 @@ class Run:
     Represents a run workout.
     '''
 
+    color = '#2ECC40'
+    textColor = 'hsla(127, 63%, 15%, 1.0)'
+
     def __init__(self, pace, duration):
         self.pace = pace
         self.duration = duration
@@ -210,6 +225,9 @@ class Interval:
     '''
     Represents an interval training workout.
     '''
+
+    color = '#FF4136'
+    textColor = 'hsla(3, 100%, 25%, 1.0)'
 
     def __init__(self, reps, fast, slow):
         self.description = "Intervals"
@@ -248,6 +266,9 @@ class HillSprint:
     '''
     Represents a hill sprint workout.
     '''
+
+    color = '#FFDC00'
+    textColor = 'hsla(52, 100%, 20%, 1.0)'
 
     def __init__(self, reps, sprint):
         self.description = "Hill Sprint"

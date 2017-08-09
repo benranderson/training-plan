@@ -1,8 +1,11 @@
-from flask import render_template, url_for
+from flask import request, render_template, url_for, Response
 from . import main
+from .. import db
 from .forms import PlanForm, LEVELS, DAYS
 from .plan_builder import Plan
+from ..models import Workout
 import datetime
+import json
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -15,7 +18,29 @@ def index():
 
         plan = Plan(event, level)
         plan.create_schedule(days)
-        plan.create_cals()
+
+        Workout.query.delete()
+
+        for date, workout in plan.schedule.items():
+            wo = Workout(date.strftime('%Y-%m-%d'), repr(workout),
+                         workout.color, workout.textColor)
+            db.session.add(wo)
+            db.session.commit()
+
+        # plan.create_cals()
 
         return render_template('plan.html', plan=plan)
     return render_template('index.html', form=form)
+
+
+@main.route('/data')
+def data():
+    calendar = []
+    workouts = Workout.query.all()
+    for row in workouts:
+        calendar.append({'title': row.title,
+                         'start': row.date,
+                         'color': row.color,
+                         'textColor': row.textColor})
+    # print(cl)
+    return Response(json.dumps(calendar))  # mimetype='application/json'

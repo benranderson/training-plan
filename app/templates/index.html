@@ -11,32 +11,9 @@
     {% endif %}
 {%- endmacro %}
 
-{% block scripts %}
-    {{super()}}
-    <script>
-        $(document).ready(function() {
-        
-            // page is now ready, initialize the calendar...
-        
-            $('#calendar').fullCalendar({
-                // put your options and callbacks here
-            });
-        
-        });
-    </script>
-    
-{% endblock %}
-
 
 {% block content %}
    <div class="container">
-       
-        
-        
-        <div id='calendar'></div>
-       
-       
-       
 
         {%- with messages = get_flashed_messages(with_categories=True) %}
         {%- if messages %}

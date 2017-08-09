@@ -1,7 +1,7 @@
 /*!
- * FullCalendar v3.4.0 Print Stylesheet
- * Docs & License: https://fullcalendar.io/
- * (c) 2017 Adam Shaw
+ * FullCalendar v2.1.1 Print Stylesheet
+ * Docs & License: http://arshaw.com/fullcalendar/
+ * (c) 2013 Adam Shaw
  */
 
 /*
@@ -32,27 +32,20 @@
 /* Table & Day-Row Restyling
 --------------------------------------------------------------------------------------------------*/
 
-.fc th,
-.fc td,
-.fc hr,
-.fc thead,
-.fc tbody,
+th,
+td,
+hr,
+thead,
+tbody,
 .fc-row {
 	border-color: #ccc !important;
 	background: #fff !important;
 }
 
-/* kill the overlaid, absolutely-positioned components */
-/* common... */
+/* kill the overlaid, absolutely-positioned common components */
 .fc-bg,
-.fc-bgevent-skeleton,
 .fc-highlight-skeleton,
-.fc-helper-skeleton,
-/* for timegrid. within cells within table skeletons... */
-.fc-bgevent-container,
-.fc-business-container,
-.fc-highlight-container,
-.fc-helper-container {
+.fc-helper-skeleton {
 	display: none;
 }
 

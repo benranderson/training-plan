@@ -19,11 +19,6 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
-nav.register_element('frontend_top', Navbar(
-    View('Training Plan', '.index'),
-    View('Home', '.index'),
-    Text('Using Flask-Bootstrap {}'.format(FLASK_BOOTSTRAP_VERSION)), ))
-
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -46,5 +41,10 @@ def create_app(config_name):
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    nav.register_element('frontend_top', Navbar(
+        View('Training Plan', '.index'),
+        View('Home', '.index'),
+        Text('Using Flask-Bootstrap {}'.format(FLASK_BOOTSTRAP_VERSION)), ))
 
     return app

@@ -1,9 +1,10 @@
 import datetime
 import calendar
+import json
 
 from .events import events_dict
 from .progressions import run_easy_progress, interval_progress, \
-    hillsprint_progress, tempo_progress
+    hillsprint_progress, tempo_progress, EventDay
 
 
 class Plan:
@@ -101,7 +102,7 @@ class Plan:
             self.add_progression_to_schedule(day, progression)
 
         # Populate schedule with race day
-        self.schedule[self.event_date] = "EVENT DAY!"
+        self.schedule[self.event_date] = EventDay(self.event)
 
     def builder_5k_beg(self, weeks, days):
         '''

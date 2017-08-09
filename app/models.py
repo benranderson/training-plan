@@ -3,8 +3,30 @@ from flask_login import UserMixin
 from . import db, login_manager
 
 
+class Workout(db.Model):
+
+    __tablename__ = 'workout'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String, nullable=False)
+    title = db.Column(db.String, nullable=False)
+    color = db.Column(db.String)
+    textColor = db.Column(db.String)
+
+    def __init__(self, date, title, color='red', textColor='blue'):
+        self.date = date
+        self.title = title
+        self.color = color
+        self.textColor = textColor
+
+    def __repr__(self):
+        return '<date %r>' % self.date
+
+
 class Role(db.Model):
+
     __tablename__ = 'roles'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     users = db.relationship('User', backref='role', lazy='dynamic')
@@ -14,7 +36,9 @@ class Role(db.Model):
 
 
 class User(UserMixin, db.Model):
+
     __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)

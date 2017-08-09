@@ -2,6 +2,29 @@
 
 {% import "bootstrap/utils.html" as utils %}
 
+
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='lib/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='fullcalendar.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                editable: true,
+                eventLimit: true, // allow "more" link when too many events
+                events: {url: 'data'}              
+            });
+        });
+    </script>
+    
+{% endblock %}
+
 {% block content %}
 <div class="container">
 
@@ -32,15 +55,6 @@
         </div>
     </div>
 
-    <div>
-        <h2>Schedule</h2>
-        <div class="table-responsive">
-            <div class="calendar">
-                {% for calendar in plan.calendars %}
-                    {{ calendar|safe }}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+    <div id='calendar'></div>
 
 {% endblock %}
