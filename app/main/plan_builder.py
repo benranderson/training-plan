@@ -170,6 +170,13 @@ class Plan:
                     self.schedule).formatmonth(year, month))
 
 
+class Workout:
+
+    def __init__(self, date, exercise):
+        self.date = date
+        self.exercise = exercise
+
+
 class WorkoutCalendar(calendar.HTMLCalendar):
     '''
     A calendar renderer, see this blog entry for details:
