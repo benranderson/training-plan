@@ -9,9 +9,7 @@ def determine_next_weekday(now, weekday):
     '''
     datetime, int -> datetime
     '''
-    days_ahead = weekday - now.weekday()
-    if days_ahead <= 0:  # Target day already happened this week
-        days_ahead += 7
+    days_ahead = weekday - now.weekday() + 7
     return now + datetime.timedelta(days_ahead)
 
 
@@ -403,13 +401,15 @@ class Plan:
     def advanced_plan(self, days):
         raise NotImplementedError
 
-    def builder_5k_beg(self, weeks, days):
+
+class Plan5k(Plan):
+
+    def beginner_plan(self, days):
         '''
         int, int -> None
 
-        Populate plan schedule with 5k Beginner progressions.
-        Based on specified number of weeks and for specified number of training
-        days a week.
+        Populate plan schedule with 5k Beginner progressions based on number of
+        training days a week.
         '''
 
         progressions = [runeasy_progress,
@@ -417,10 +417,10 @@ class Plan:
                         runeasy_progress]
 
         for day, progression in zip(days, progressions):
-            progress_start = determine_start_date(self.current_date, day)
-            self.schedule += list(progression(progress_start, weeks))
+            progress_start = determine_next_weekday(self.start_date, day)
+            self.schedule += list(progression(progress_start, self.length))
 
-    def builder_5k_int(self, weeks, days):
+    def intermediate_plan(self, days):
         '''
         int, int -> matrix
 
@@ -429,31 +429,21 @@ class Plan:
         days a week.
         '''
 
-        progressions = []
+        # progressions = []
 
-        if days > 0:
-            tempos = list(tempo_progress(weeks, start_week=0, step=2, freq=3))
-            ints = list(interval_progress(weeks, start_week=1, step=2))
-            progress = [val for pair in zip(tempos, ints) for val in pair]
-            progressions.append(progress)
-        if days > 1:
-            progressions.append(list(run_easy_progress(weeks)))
-        if days > 2:
-            progressions.append(
-                list(hillsprint_progress(weeks, start_week=0, step=1)))
+        # if days > 0:
+        #     tempos = list(tempo_progress(weeks, start_week=0, step=2, freq=3))
+        #     ints = list(interval_progress(weeks, start_week=1, step=2))
+        #     progress = [val for pair in zip(tempos, ints) for val in pair]
+        #     progressions.append(progress)
+        # if days > 1:
+        #     progressions.append(list(run_easy_progress(weeks)))
+        # if days > 2:
+        #     progressions.append(
+        #         list(hillsprint_progress(weeks, start_week=0, step=1)))
 
-        return progressions
+        # return progressions
 
-
-class Plan5k(Plan):
-
-    def get_distance(self):
-        return "5k"
-
-    def beginner_plan(self, days):
-        self.schedule.append(Run(self.start_date, 10))
-
-    def intermediate_plan(self, days):
         self.schedule.append(Run(self.start_date, 10))
 
     def advanced_plan(self, days):

@@ -5,22 +5,37 @@ from datetime import date
 import app.main.builder as b
 
 
-@pytest.mark.parametrize('event, expected', [
-    ("2018 EMF 10k", '26 May 2018'),
-    ("2018 Men's 10K Glasgow", '17 Jun 2018')
-])
-def test_Plan_event_day(event, expected):
-    p = b.Plan(event)
-    assert p.event_date == expected
+# @pytest.mark.parametrize('event, expected', [
+#     (date(2017, 8, 16), 0, date(2017, 8, 21)),
+#     (date(2017, 8, 16), 2, date(2017, 8, 23)),
+#     (date(2017, 8, 16), 4, date(2017, 8, 25))
+# ])
+# def test_get_plan(now, weekday, expected):
+#     assert b.determine_next_weekday(now, weekday) == expected
+
+
+@pytest.fixture
+def plan():
+    '''Returns an 8 week Plan'''
+    return b.Plan(date(2017, 8, 16), date(2017, 9, 30), "Event Day!")
+
+
+def test_Plan_event_day_in_schedule(plan):
+    assert repr(plan.schedule[0]) == repr(
+        b.EventDay(date(2017, 9, 30), "Event Day!"))
+
+
+def test_Plann_event_date_property(plan):
+    assert plan.event_date == '30 Sep 2017'
 
 
 @pytest.mark.parametrize('now, weekday, expected', [
-    (date(2017, 8, 11), 0, date(2017, 8, 14)),
-    (date(2017, 8, 11), 1, date(2017, 8, 15)),
-    (date(2017, 8, 8), 5, date(2017, 8, 12))
+    (date(2017, 8, 16), 0, date(2017, 8, 21)),
+    (date(2017, 8, 16), 2, date(2017, 8, 23)),
+    (date(2017, 8, 16), 4, date(2017, 8, 25))
 ])
-def test_determine_start_date(now, weekday, expected):
-    assert b.determine_start_date(now, weekday) == expected
+def test_determine_next_weekday(now, weekday, expected):
+    assert b.determine_next_weekday(now, weekday) == expected
 
 
 def test_mins_to_seconds_formatter():
