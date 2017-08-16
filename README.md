@@ -5,6 +5,8 @@ Web application for creating bespoke running training plans based on your race d
 
 Hosted at <https://training-plan-br.herokuapp.com>.
 
+[![Build Status][travis-image]][travis-url]
+
 ## Development setup (UNIX)
 
 First clone the repository to desired folder location:
@@ -53,3 +55,7 @@ $ python manage.py test
 Ben Randerson – ben.m.randerson@gmail.com
 
 [https://github.com/benranderson](https://github.com/benranderson)
+
+<!-- Markdown link & img dfn's -->
+[travis-image]: https://www.travis-ci.org/benranderson/training-plan.svg?branch=master
+[travis-url]: https://www.travis-ci.org/benranderson/training-plan
