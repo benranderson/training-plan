@@ -3,7 +3,7 @@
 
 Web application for creating bespoke running training plans based on your race distance, ability level, time until your race and the number of days you wish to train per week.
 
-![](images/screenshot.png)
+Hosted at <https://training-plan-br.herokuapp.com>.
 
 ## Development setup (UNIX)
 

@@ -2,7 +2,7 @@ from flask import request, render_template, url_for, Response
 from . import main
 from .. import db
 from .forms import PlanForm, LEVELS, DAYS
-from .plan_builder import Plan
+from .builder import get_plan
 from ..models import Workout
 import datetime
 import json
@@ -16,13 +16,13 @@ def index():
         level = dict(LEVELS).get(form.level.data)
         days = [day for day in form.days.data]
 
-        plan = Plan(event, level)
-        plan.create_schedule(days)
+        plan = get_plan(event)
+        plan.create_schedule(level, days)
 
         Workout.query.delete()
 
-        for date, workout in plan.schedule.items():
-            wo = Workout(date.strftime('%Y-%m-%d'), repr(workout),
+        for workout in plan.schedule:
+            wo = Workout(workout.date, str(workout),
                          workout.color, workout.textColor)
             db.session.add(wo)
             db.session.commit()
@@ -42,5 +42,4 @@ def data():
                          'start': row.date,
                          'color': row.color,
                          'textColor': row.textColor})
-    # print(cl)
-    return Response(json.dumps(calendar))  # mimetype='application/json'
+    return Response(json.dumps(calendar))
