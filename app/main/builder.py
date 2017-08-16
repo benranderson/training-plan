@@ -354,6 +354,9 @@ class Plan:
         self.schedule = [EventDay(self._event_date, event)]
 
     def create_schedule(self, level, days):
+        '''
+        Creates schedule based on ability level and training days
+        '''
 
         self.level = level
 
@@ -379,7 +382,7 @@ class Plan:
     @property
     def event_date(self):
         '''
-        Event date property, formatted as a string.
+        Event date property, formatted as a string
         '''
         return self._event_date.strftime('%d %b %Y')
 
@@ -399,7 +402,6 @@ class Plan:
 
     def advanced_plan(self, days):
         raise NotImplementedError
-
 
     def builder_5k_beg(self, weeks, days):
         '''
