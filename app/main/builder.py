@@ -84,10 +84,7 @@ class WorkoutSet:
 
 class Workout:
     '''
-    @property
-    duration
-
-    add_set
+    Represents a workout session
     '''
 
     def __init__(self, date, description):
@@ -467,7 +464,7 @@ class Plan5k(Plan):
 
 def get_plan(event):
     '''
-    The factory method
+    Plan factory method
     '''
 
     # Retrieve event information

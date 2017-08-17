@@ -6,6 +6,7 @@ Web application for creating bespoke running training plans based on your race d
 Hosted at <https://training-plan-br.herokuapp.com>.
 
 [![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 
 ## Development setup (UNIX)
 
@@ -59,3 +60,7 @@ Ben Randerson – ben.m.randerson@gmail.com
 <!-- Markdown link & img dfn's -->
 [travis-image]: https://www.travis-ci.org/benranderson/training-plan.svg?branch=master
 [travis-url]: https://www.travis-ci.org/benranderson/training-plan
+[coveralls-image]:
+https://coveralls.io/repos/github/benranderson/training-plan/badge.svg?branch=master
+[coveralls-url]:
+https://coveralls.io/github/benranderson/training-plan?branch=master
