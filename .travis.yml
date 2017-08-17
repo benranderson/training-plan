@@ -6,3 +6,5 @@ install:
 script:
     - "pip install -r requirements/dev.txt"
     - "py.test tests"
+after_success:
+    - coveralls

@@ -58,6 +58,7 @@ class WorkoutSet:
     def __init__(self, reps, exercises):
         self.reps = reps
         self.exercises = exercises
+        self.duration = 0
 
     def __repr__(self):
         '''
@@ -65,6 +66,9 @@ class WorkoutSet:
         '''
         ex = ', '.join(str(exercise) for exercise in self.exercises)
         return '{0}x ({1})'.format(self.reps, ex)
+
+    def add_exercise(self):
+        pass
 
     def calculate_duration(self):
         '''
@@ -79,10 +83,17 @@ class WorkoutSet:
 
 
 class Workout:
+    '''
+    @property
+    duration
+
+    add_set
+    '''
 
     def __init__(self, date, description):
         self.date = date
         self.description = description
+        self.duration = 0
         self.workoutsets = []
 
     def __repr__(self):
@@ -99,6 +110,10 @@ class Workout:
         ws = '\n'.join('{0}x {1}'.format(workoutset.reps,
                                          workoutset.exercises) for workoutset in self.workoutsets)
         return '{0}\n{1}'.format(self.description, ws)
+
+    def add_workoutset(self, workoutset):
+        self.workoutsets.append(workoutset)
+        self.duration += workoutset.duration
 
     def calculate_duration(self):
         '''
