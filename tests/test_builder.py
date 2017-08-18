@@ -16,17 +16,22 @@ import app.main.builder as b
 
 @pytest.fixture
 def plan():
-    '''Returns an 8 week Plan'''
-    return b.Plan(date(2017, 8, 16), date(2017, 9, 30), "Event Day!")
+    '''Returns an 8 week 5k Plan'''
+    return b.Plan5k(date(2017, 8, 16), date(2017, 9, 30), '2018 EMF 5k')
 
 
 def test_Plan_event_day_in_schedule(plan):
     assert repr(plan.schedule[0]) == repr(
-        b.EventDay(date(2017, 9, 30), "Event Day!"))
+        b.Workout(date(2017, 9, 30), 'Event Day'))
 
 
 def test_Plann_event_date_property(plan):
     assert plan.event_date == '30 Sep 2017'
+
+
+def test_Plan_beginner_plan(plan):
+    plan.create_schedule('Beginner', [0])
+    print(plan.schedule)
 
 
 @pytest.mark.parametrize('now, weekday, expected', [
@@ -38,6 +43,13 @@ def test_determine_next_weekday(now, weekday, expected):
     assert b.determine_next_weekday(now, weekday) == expected
 
 
+def test_weekrange():
+    assert list(b.weekrange(date(2017, 8, 14), 4)) == [date(2017, 8, 14),
+                                                       date(2017, 8, 21),
+                                                       date(2017, 8, 28),
+                                                       date(2017, 9, 4)]
+
+
 def test_mins_to_seconds_formatter():
     assert b.mins_to_seconds_formatter(0.5) == '30s'
 
@@ -47,62 +59,126 @@ def test_Exercise():
     assert 'RunEasy' in repr(ex)
 
 
-def test_WorkoutSet():
-    ex = [b.Exercise('RunFast', 1), b.Exercise('RunEasy', 0.5)]
-    ws = b.WorkoutSet(5, ex)
-    assert '5' in repr(ws)
+def test_WorkoutSet_add_exercise():
+    ws = b.WorkoutSet(5)
+    e = b.Exercise('RunFast', 1)
+    ws.add_exercise(e)
+    assert e in ws.exercises
 
 
-def test_WorkoutSet_calculate_duration():
-    ex = [b.Exercise('RunFast', 1), b.Exercise('RunEasy', 0.5)]
-    ws = b.WorkoutSet(5, ex)
-    assert ws.calculate_duration() == 7.5
+@pytest.fixture
+def workoutset():
+    '''Returns a workout set'''
+    ws = b.WorkoutSet(5)
+    es = [b.Exercise('RunFast', 1), b.Exercise('RunEasy', 0.5)]
+    for e in es:
+        ws.add_exercise(e)
+    return ws
 
 
-def test_Workout():
-    ex = [b.Exercise('RunFast', 1), b.Exercise('RunEasy', 0.5)]
-    ws = [b.WorkoutSet(1, b.Exercise('RunEasy', 0.5)), b.WorkoutSet(5, ex)]
-
-    w = b.Workout(date(2017, 8, 11), 'Intervals')
-    w.workoutsets = ws
-
-    print(w)
+def test_WorkoutSet_repr(workoutset):
+    assert '5' in repr(workoutset)
+    assert 'RunFast' in repr(workoutset)
+    assert 'RunEasy' in repr(workoutset)
 
 
-def test_Interval():
-    interval = b.Interval(date(2017, 8, 11), 5, 1, 1)
-    assert 'Interval' in repr(interval)
+def test_WorkoutSet_duration(workoutset):
+    assert workoutset.duration == 7.5
 
 
-def test_Hillsprint():
-    hillsprint = b.HillSprint(date(2017, 8, 11), 6, 0.25)
-    assert 'HillSprint' in repr(hillsprint)
+def test_Workout_add_workoutset(workoutset):
+    w = b.Workout(date(2017, 8, 14), 'RunEasy')
+    w.add_workoutset(workoutset)
+    assert workoutset in w.workoutsets
 
 
-def test_interval_progress():
-    start = date(2017, 8, 14)
-    expected = [b.Interval(date(2017, 8, 14), 5, 0.25, 1),
-                b.Interval(date(2017, 8, 21), 6, 0.25, 1),
-                b.Interval(date(2017, 8, 28), 6, 0.5, 1),
-                b.Interval(date(2017, 9, 4), 6, 0.5, 1),
-                b.Interval(date(2017, 9, 11), 7, 0.5, 1),
-                b.Interval(date(2017, 9, 18), 7, 0.75, 1),
-                b.Interval(date(2017, 9, 25), 8, 0.75, 1),
-                b.Interval(date(2017, 10, 2), 8, 0.75, 1)]
-    assert str(list(b.interval_progress(start, 8))) == str(expected)
+@pytest.fixture
+def workout(workoutset):
+    '''Returns a workout set'''
+    w = b.Workout(date(2017, 8, 14), 'RunEasy')
+    w.add_workoutset(workoutset)
+    return w
 
 
-def test_runeasy_progress():
-    start = date(2017, 8, 14)
-    expected = [b.Run(date(2017, 8, 14), 25),
-                b.Run(date(2017, 8, 21), 25),
-                b.Run(date(2017, 8, 28), 30),
-                b.Run(date(2017, 9, 4), 25),
-                b.Run(date(2017, 9, 11), 30),
-                b.Run(date(2017, 9, 18), 30),
-                b.Run(date(2017, 9, 25), 35),
-                b.Run(date(2017, 10, 2), 35)]
-    assert str(list(b.runeasy_progress(start, 8))) == str(expected)
+def test_Workout_repr(workout):
+    assert '14 Aug 2017 - RunEasy' in repr(workout)
+
+
+def test_Workout_str(workout):
+    assert 'RunEasy' in str(workout)
+    assert '5x [RunFast(1), RunEasy(0.5)]' in str(workout)
+
+
+def test_Workout_duration(workout, workoutset):
+    workout.add_workoutset(workoutset)
+    assert workout.duration == 15
+
+
+def test_Workout_formatting(workout):
+    assert workout.color == '#2ECC40'
+    assert workout.textColor == 'hsla(127, 63%, 15%, 1.0)'
+
+# def test_Interval():
+#     interval = b.Interval(date(2017, 8, 11), 5, 1, 1)
+#     assert 'Interval' in repr(interval)
+
+
+# def test_Hillsprint():
+#     hillsprint = b.HillSprint(date(2017, 8, 11), 6, 0.25)
+#     assert 'HillSprint' in repr(hillsprint)
+
+
+def test_Progression_runeasy():
+    p = b.Progression(date(2017, 8, 11), 4)
+    p.create(25, 3, 35)
+    expected = ['25', '25', '30', '25']
+
+    for wk, dur in enumerate(expected):
+        assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
+
+
+def test_Progression_runeasy():
+    p = b.Progression(date(2017, 8, 11), 4)
+    p.create(25, 3, 35)
+    expected = ['25', '25', '30', '25']
+
+    for wk, dur in enumerate(expected):
+        assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
+
+
+def test_Progression_intervals():
+    p = b.Progression(date(2017, 8, 11), 4)
+    p.create(25, 3, 35)
+    expected = ['25', '25', '30', '25']
+
+    for wk, dur in enumerate(expected):
+        assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
+
+
+# def test_interval_progress():
+#     start = date(2017, 8, 14)
+#     expected = [b.Interval(date(2017, 8, 14), 5, 0.25, 1),
+#                 b.Interval(date(2017, 8, 21), 6, 0.25, 1),
+#                 b.Interval(date(2017, 8, 28), 6, 0.5, 1),
+#                 b.Interval(date(2017, 9, 4), 6, 0.5, 1),
+#                 b.Interval(date(2017, 9, 11), 7, 0.5, 1),
+#                 b.Interval(date(2017, 9, 18), 7, 0.75, 1),
+#                 b.Interval(date(2017, 9, 25), 8, 0.75, 1),
+#                 b.Interval(date(2017, 10, 2), 8, 0.75, 1)]
+#     assert str(list(b.interval_progress(start, 8))) == str(expected)
+
+
+# def test_runeasy_progress():
+#     start = date(2017, 8, 14)
+#     expected = [b.Run(date(2017, 8, 14), 25),
+#                 b.Run(date(2017, 8, 21), 25),
+#                 b.Run(date(2017, 8, 28), 30),
+#                 b.Run(date(2017, 9, 4), 25),
+#                 b.Run(date(2017, 9, 11), 30),
+#                 b.Run(date(2017, 9, 18), 30),
+#                 b.Run(date(2017, 9, 25), 35),
+#                 b.Run(date(2017, 10, 2), 35)]
+#     assert str(list(b.runeasy_progress(start, 8))) == str(expected)
 
 
 # def test_hillsprint_progress():

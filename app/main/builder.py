@@ -1,6 +1,7 @@
 import datetime
 import calendar
 import json
+import types
 
 from .events import events_dict
 
@@ -11,6 +12,11 @@ def determine_next_weekday(now, weekday):
     '''
     days_ahead = weekday - now.weekday() + 7
     return now + datetime.timedelta(days_ahead)
+
+
+def weekrange(start_date, num_weeks):
+    for n in range(0, num_weeks):
+        yield start_date + datetime.timedelta(weeks=n)
 
 
 def mins_to_seconds_formatter(dur_in_mins):
@@ -55,10 +61,10 @@ class Exercise:
 
 class WorkoutSet:
 
-    def __init__(self, reps, exercises):
+    def __init__(self, reps):
         self.reps = reps
-        self.exercises = exercises
-        self.duration = 0
+        self.exercises = []
+        self._duration = 0
 
     def __repr__(self):
         '''
@@ -67,25 +73,32 @@ class WorkoutSet:
         ex = ', '.join(str(exercise) for exercise in self.exercises)
         return '{0}x ({1})'.format(self.reps, ex)
 
-    def add_exercise(self):
-        pass
+    @property
+    def duration(self):
+        return self.reps * self._duration
 
-    def calculate_duration(self):
-        '''
-        Return total duration of workout set
-        '''
-        duration = 0
-
-        for exercise in self.exercises:
-            duration += exercise.duration
-
-        return self.reps * duration
+    def add_exercise(self, exercise):
+        self.exercises.append(exercise)
+        self._duration += exercise.duration
 
 
 class Workout:
     '''
     Represents a workout session
     '''
+
+    formatting_dict = {
+        'Event Day': {'color': '#001F3F',
+                      'textColor': 'hsla(210, 100%, 75%, 1.0)'},
+        'RunEasy': {'color': '#2ECC40',
+                    'textColor': 'hsla(127, 63%, 15%, 1.0)'},
+        'Intervals': {'color': '#FF4136',
+                      'textColor': 'hsla(3, 100%, 25%, 1.0)'},
+        'Hillsprint': {'color': '#FFDC00',
+                       'textColor': 'hsla(52, 100%, 20%, 1.0)'},
+        'Tempo': {'color': '#0074D9',
+                  'textColor': 'hsla(208, 100%, 85%, 1.0)'}
+    }
 
     def __init__(self, date, description):
         self.date = date
@@ -104,52 +117,22 @@ class Workout:
         '''
         Return a more human-readable representation
         '''
+        # TODO: add if for EventDay
         ws = '\n'.join('{0}x {1}'.format(workoutset.reps,
                                          workoutset.exercises) for workoutset in self.workoutsets)
         return '{0}\n{1}'.format(self.description, ws)
 
+    @property
+    def color(self):
+        return self.formatting_dict[self.description]['color']
+
+    @property
+    def textColor(self):
+        return self.formatting_dict[self.description]['textColor']
+
     def add_workoutset(self, workoutset):
         self.workoutsets.append(workoutset)
         self.duration += workoutset.duration
-
-    def calculate_duration(self):
-        '''
-        Return total duration of workout
-        '''
-        duration = 0
-
-        for workoutset in self.workoutsets:
-            duration += workoutset.calculate_duration()
-
-        return duration
-
-
-class EventDay(Workout):
-    '''
-    Represents the Event Day
-    '''
-
-    color = '#001F3F'
-    textColor = 'hsla(210, 100%, 75%, 1.0)'
-
-    def __str__(self):
-        '''
-        Return a more human-readable representation
-        '''
-        return '{}!'.format(self.description)
-
-
-class Run(Workout):
-    '''
-    Represents a run workout
-    '''
-
-    color = '#2ECC40'
-    textColor = 'hsla(127, 63%, 15%, 1.0)'
-
-    def __init__(self, date, duration):
-        super().__init__(date, 'Run')
-        self.workoutsets.append(WorkoutSet(1, [Exercise("Easy", duration)]))
 
 
 class Interval(Workout):
@@ -209,36 +192,59 @@ class Tempo(Workout):
         self.workoutsets = [warmup, steady, easy, tempo, warmdown]
 
 
-def runeasy_progress(start_date, weeks, start=25, freq=3, max=35):
-    '''
-    number, number, number, number -> iterator
+class Progression:
+    def __init__(self, start_date, length, func=None):
+        self.start_date = start_date
+        self.length = length
+        self.sessions = []
 
-    Easy running progression:
-    - Every 3rd week the easy running will have a progression
-    - The progressions will be: Every 3rd week the easy running total will
-    increase by 5 minutes.  The increase will be in one of the easy running
-    sessions, and it will alternate between the two
-    - On an easier week: The easy running session with less minutes will
-    decrease by 5 minutes from the previous week
-    - On a target race week: The easy running session with less minutes will
-    decrease by 5 minutes from the previous week, the longer easy run will be
-    replaced by the race
-    - The maximum easy running session will be: Runeasy(35)"
+        if func is not None:
+            self.create = types.MethodType(func, self)
+
+    def create(self, initial_dur, prog_freq, max_dur):
+        '''
+        Return an easy running progression as a list of workouts
+        '''
+
+        dur = initial_dur
+
+        for wk, date in enumerate(weekrange(self.start_date, self.length)):
+            if not rest_week(wk, self.length):
+                if (wk + 1) % prog_freq == 0 and dur < max_dur:
+                    dur += 5
+                wk_dur = dur
+            else:
+                wk_dur = dur - 5
+
+            w = Workout(date, 'RunEasy')
+            e = Exercise('Easy', wk_dur)
+            ws = WorkoutSet(1)
+            ws.add_exercise(e)
+            w.add_workoutset(ws)
+            self.sessions.append(w)
+
+
+def create_intervals(self, initial_dur, prog_freq, max_dur):
     '''
-    workout_date = start_date
-    dur = start
-    week = 0
-    while week < weeks:
-        if not rest_week(week, weeks):
-            if (week + 1) % freq == 0 and dur < max:
+    Return an easy intervals progression as a list of workouts
+    '''
+
+    dur = initial_dur
+
+    for wk, date in enumerate(weekrange(self.start_date, self.length)):
+        if not rest_week(wk, self.length):
+            if (wk + 1) % prog_freq == 0 and dur < max_dur:
                 dur += 5
             wk_dur = dur
         else:
             wk_dur = dur - 5
-        yield Run(workout_date, wk_dur)
 
-        workout_date += datetime.timedelta(weeks=1)
-        week += 1
+        w = Workout(date, 'Intervals')
+        e = Exercise('Easy', wk_dur)
+        ws = WorkoutSet(1)
+        ws.add_exercise(e)
+        w.add_workoutset(ws)
+        self.sessions.append(w)
 
 
 def interval_progress(start_date, weeks, start_week=0, step=1, reps_start=5,
@@ -358,10 +364,16 @@ class Plan:
         self._event_date = event_date
         self.event = event
         self.level = None
-        self.length = self.weeks_between_dates(start_date, self._event_date)
 
         # Populate schedule with event
-        self.schedule = [EventDay(self._event_date, event)]
+        self.schedule = [Workout(self._event_date, 'Event Day')]
+
+    @property
+    def length(self):
+        '''
+        Length of the training plan in weeks
+        '''
+        return self.weeks_between_dates(self.start_date, self._event_date)
 
     def create_schedule(self, level, days):
         '''
@@ -378,7 +390,7 @@ class Plan:
             }.get(level, None)
             return level_dict(days)
 
-        builder_dict(level, days)
+        self.schedule += builder_dict(level, days)
 
     def __repr__(self):
         '''
@@ -424,13 +436,22 @@ class Plan5k(Plan):
         training days a week.
         '''
 
-        progressions = [runeasy_progress,
-                        hillsprint_progress,
-                        runeasy_progress]
+        details = [
+            {'func': None, 'inputs': (25, 3, 35)},
+            {'func': create_intervals, 'inputs': (25, 1, 25)},
+            {'func': None, 'inputs': (25, 3, 35)}
+        ]
 
-        for day, progression in zip(days, progressions):
-            progress_start = determine_next_weekday(self.start_date, day)
-            self.schedule += list(progression(progress_start, self.length))
+        schedule = []
+
+        for day, details in zip(days, details):
+            session_start = determine_next_weekday(self.start_date, day)
+            p = Progression(session_start, self.length, details['func'])
+            p.create(details['inputs'][0], details['inputs'][1],
+                     details['inputs'][2])
+            schedule += p.sessions
+
+        return schedule
 
     def intermediate_plan(self, days):
         '''
@@ -456,10 +477,10 @@ class Plan5k(Plan):
 
         # return progressions
 
-        self.schedule.append(Run(self.start_date, 10))
+        pass
 
     def advanced_plan(self, days):
-        self.schedule.append(Run(self.start_date, 10))
+        pass
 
 
 def get_plan(event):
