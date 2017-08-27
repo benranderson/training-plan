@@ -4,45 +4,7 @@ import json
 import types
 
 from .events import events_dict
-
-
-def determine_next_weekday(now, weekday):
-    '''
-    datetime, int -> datetime
-    '''
-    days_ahead = weekday - now.weekday() + 7
-    return now + datetime.timedelta(days_ahead)
-
-
-def weekrange(start_date, num_weeks):
-    for n in range(0, num_weeks):
-        yield start_date + datetime.timedelta(weeks=n)
-
-
-def mins_to_seconds_formatter(dur_in_mins):
-    return "{}s".format(int(dur_in_mins * 60))
-
-
-def rest_week(week, plan_length):
-    '''
-    int -> boolean
-
-    Determine if current week is a rest week.
-
-    Plans work on a 4 week block, with every 4th week being an easier week.
-    Runner has at least 2 weeks, and a maximum of 5 weeks before they get an
-    easier week.  So if they were on a 6 week plan they would only have an
-    easier week on race week.
-
-    Returns True if rest week and False if progression week.
-    '''
-    build_up = plan_length % 4
-    if week <= build_up and build_up < 3:
-        return False
-    elif (week - build_up + 1) % 4 == 0:
-        return True
-    else:
-        return False
+import utils
 
 
 class Exercise:
@@ -57,6 +19,10 @@ class Exercise:
         Return a more human-readable representation
         '''
         return '{0}({1})'.format(self.description, self.duration)
+
+    @staticmethod
+    def mins_to_seconds_formatter(dur_in_mins):
+        return "{}s".format(int(dur_in_mins * 60))
 
 
 class WorkoutSet:
@@ -135,223 +101,100 @@ class Workout:
         self.duration += workoutset.duration
 
 
-class Interval(Workout):
-    '''
-    Represents an interval training workout
-    '''
-
-    color = '#FF4136'
-    textColor = 'hsla(3, 100%, 25%, 1.0)'
-
-    def __init__(self, date, reps, fast, easy):
-        super().__init__(date, "Intervals")
-
-        warmup = WorkoutSet(1, [Exercise("Easy", 10)])
-        work = WorkoutSet(reps, [Exercise("Fast", easy),
-                                 Exercise("Easy", fast)])
-        warmdown = WorkoutSet(1, [Exercise("Easy", 10)])
-
-        self.workoutsets = [warmup, work, warmdown]
-
-
-class HillSprint(Workout):
-    '''
-    Represents a hill sprint workout
-    '''
-
-    color = '#FFDC00'
-    textColor = 'hsla(52, 100%, 20%, 1.0)'
-
-    def __init__(self, date, reps, sprint):
-        super().__init__(date, "HillSprint")
-
-        warmup = WorkoutSet(1, [Exercise("Easy", 12)])
-        work = WorkoutSet(reps, [Exercise("Hillsprint", sprint)])
-        warmdown = WorkoutSet(1, [Exercise("Easy", 12)])
-
-        self.workoutsets = [warmup, work, warmdown]
-
-
-class Tempo(Workout):
-    '''
-    Represents a tempo workout
-    '''
-
-    color = '#0074D9'
-    textColor = 'hsla(208, 100%, 85%, 1.0)'
-
-    def __init__(self, date, warmup, steady, easy, tempo, warmdown):
-        super().__init__(date, "Tempo")
-
-        warmup = WorkoutSet(1, [Exercise("Easy", warmup)])
-        steady = WorkoutSet(1, [Exercise("Easy", steady)])
-        easy = WorkoutSet(1, [Exercise("Easy", easy)])
-        tempo = WorkoutSet(1, [Exercise("Easy", tempo)])
-        warmdown = WorkoutSet(1, [Exercise("Easy", warmdown)])
-
-        self.workoutsets = [warmup, steady, easy, tempo, warmdown]
-
-
 class Progression:
-    def __init__(self, start_date, length, func=None):
+    def __init__(self, start_date, length, start_week=0, step=1, func=None):
         self.start_date = start_date
         self.length = length
+        self.start_week = start_week
+        self.step = step
         self.sessions = []
 
         if func is not None:
             self.create = types.MethodType(func, self)
 
-    def create(self, initial_dur, prog_freq, max_dur):
-        '''
-        Return an easy running progression as a list of workouts
-        '''
-
-        dur = initial_dur
-
-        for wk, date in enumerate(weekrange(self.start_date, self.length)):
-            if not rest_week(wk, self.length):
-                if (wk + 1) % prog_freq == 0 and dur < max_dur:
-                    dur += 5
-                wk_dur = dur
-            else:
-                wk_dur = dur - 5
-
-            w = Workout(date, 'RunEasy')
-            e = Exercise('Easy', wk_dur)
-            ws = WorkoutSet(1)
-            ws.add_exercise(e)
-            w.add_workoutset(ws)
-            self.sessions.append(w)
+    def create(self):
+        raise NotImplementedError
 
 
-def create_intervals(self, initial_dur, prog_freq, max_dur):
+def create_runeasy(self, distance, level, workout):
     '''
-    Return an easy intervals progression as a list of workouts
+    Return an easy running progression as a list of workouts
     '''
 
-    dur = initial_dur
+    init_dur = RUNEASY_SETTINGS[distance][level][workout]['init_dur']
+    prog_freq = RUNEASY_SETTINGS[distance][level][workout]['prog_freq']
+    rest_week_cut = RUNEASY_SETTINGS[distance][level][workout]['rest_week_cut']
+    race_week_cut = RUNEASY_SETTINGS[distance][level][workout]['race_week_cut']
+    max_dur = RUNEASY_SETTINGS[distance][level][workout]['max_dur']
 
-    for wk, date in enumerate(weekrange(self.start_date, self.length)):
-        if not rest_week(wk, self.length):
+    dur = init_dur
+
+    def week_cut_version(week_cut, dur):
+        '''
+        Return rest week duration based on wether cut is applied as an absolute
+        or % value
+        '''
+        if "%" in week_cut:
+            return (float(week_cut.strip('%')) / 100) * dur
+        else:
+            return dur - week_cut
+
+    for wk, date, wk_type in plan_week_range(self.start_date, self.length):
+        if wk_type == 'prog':
             if (wk + 1) % prog_freq == 0 and dur < max_dur:
                 dur += 5
             wk_dur = dur
+        elif wk_type == 'rest':
+            wk_dur = week_cut_version(rest_week_cut, dur)
         else:
-            wk_dur = dur - 5
+            wk_dur = week_cut_version(race_week_cut, dur)
 
-        w = Workout(date, 'Intervals')
-        e = Exercise('Easy', wk_dur)
+        w = Workout(date, 'RunEasy')
         ws = WorkoutSet(1)
+        e = Exercise('Easy', wk_dur)
         ws.add_exercise(e)
         w.add_workoutset(ws)
         self.sessions.append(w)
 
 
-def interval_progress(start_date, weeks, start_week=0, step=1, reps_start=5,
-                      reps_freq=1, reps_max=8, fast_start=0.5, fast_freq=2,
-                      fast_max=1):
+def create_intervals(self, initial_reps, freq_reps, max_reps, initial_fast,
+                     freq_fast, max_fast):
     '''
-    -> iterator
-
-    Interval progression:
-    - Every intervals session (not including easier weeks) will have a
-    progression
-    - The progressions will be: Increase the number of reps by 1, the following
-    week increase the length of the rep by 0.25, continue like this until
-    8*RunfastRuneasy(1,1) is reached
-    - On an easier week: Go back to previous session
-    - On a target race week: Runeasy(10) 5x Interval(0.5, 1) Runeasy(10)
+    Return an easy intervals progression as a list of workouts
     '''
 
-    workout_date = start_date
-    week = start_week
-    reps = reps_start
-    fast = fast_start
+    reps = initial_reps
+    fast = initial_fast
 
-    while week < weeks:
-        if week > 0:
-            if not rest_week(week, weeks):
-                if (week / step) % 2 == 0:
-                    if fast < fast_max:
-                        fast += 0.25
+    for wk, date, wk_type in plan_week_range(self.start_date, self.length):
+        if wk_type == 'prog':
+            if (wk / self.step) % 2 == 0:
+                if fast < max_fast:
+                    fast += 0.25
                 else:
-                    if reps < reps_max:
+                    if reps < max_reps:
                         reps += 1
 
         wk_reps = reps
         wk_fast = fast
 
-        yield Interval(workout_date, wk_reps, wk_fast, 1)
+        w = Workout(date, 'Intervals')
+        ws = WorkoutSet(1)
+        e = Exercise('Easy', 10)
+        w.add_workoutset(ws)
 
-        workout_date += datetime.timedelta(weeks=step)
-        week += step
+        ws = WorkoutSet(wk_reps)
+        es = [Exercise('Fast', wk_fast), Exercise('Easy', 1)]
+        for e in es:
+            ws.add_exercise(e)
+        w.add_workoutset(ws)
 
+        ws = WorkoutSet(1)
+        e = Exercise('Easy', 10)
+        ws.add_exercise(e)
+        w.add_workoutset(ws)
 
-def hillsprint_progress(start_date, weeks, start_week=1, step=1, reps_start=6, reps_freq=3,
-                        reps_max=8):
-    '''
-    -> iterator
-
-    Hills progression:
-    - Every 3rd hills session (not including easier weeks) will have a
-    progression
-    - The progressions will be: Increase number of reps by 2
-    - On an easier week: Go back to previous session. So week by week the
-    number of reps will look like 6,6,8,6,8,10
-    - On a target race week: Runeasy(12) 6*Hillsprint(0.25) Runeasy(12)
-    '''
-
-    workout_date = start_date
-    week = start_week
-    reps = reps_start
-
-    while week < weeks:
-        if week > 0:
-            if not rest_week(week, weeks):
-                if ((week + start_week) / step) % reps_freq == 0 and reps < reps_max:
-                    reps += 2
-
-        wk_reps = reps
-        yield HillSprint(workout_date, wk_reps, 0.25)
-
-        workout_date += datetime.timedelta(weeks=step)
-        week += step
-
-
-def tempo_progress(weeks, start_week=1, step=2, freq=3):
-    '''
-    int, int, int, int -> iterator
-
-    Tempo progression:
-    - Every 3rd tempo session will have a progression
-    - The progresssions will be:
-    - Runeasy(5) Runsteady(10) Runeasy(10) Runtempo(5) Runeasy(5)
-    - Runeasy(5) Runsteady(15) Runeasy(10) Runtempo(5) Runeasy(5)
-    - Runeasy(10) Runsteady(15) Runeasy(10) Runtempo(5) Runeasy(5)
-    - Runeasy(10) Runsteady(15) Runeasy(5) Runtempo(5) Runeasy(10)
-    - Runeasy(10) Runsteady(10) Runeasy(5) Runtempo(10) Runeasy(10)
-    - Runeasy(10) Runsteady(10) Runtempo(10) Runeasy(10)
-    - On an easier week: the session will be the same as the week before
-    '''
-    week = start_week
-    durations = [[5, 10, 10, 5, 5],
-                 [5, 15, 10, 5, 5],
-                 [10, 15, 10, 5, 5],
-                 [10, 15, 5, 5, 10],
-                 [10, 10, 5, 10, 10],
-                 [10, 10, 10, 10, 10]]
-
-    i = 0
-
-    while week < weeks:
-        if week > 0:
-            if not rest_week(week, weeks):
-                if ((week + start_week) / step) % freq == 0 and i < 5:
-                    i += 1
-
-        yield Tempo(durations[i][0], durations[i][1], durations[i][2],
-                    durations[i][3], durations[i][4])
-        week += step
+        self.sessions.append(w)
 
 
 class Plan:
@@ -359,10 +202,11 @@ class Plan:
     Represents running training plan for prescribed event and level.
     '''
 
-    def __init__(self, start_date, event_date, event):
+    def __init__(self, start_date, event_date, event, settings):
         self.start_date = start_date
         self._event_date = event_date
         self.event = event
+        self.settings = settings
         self.level = None
 
         # Populate schedule with event
@@ -436,6 +280,8 @@ class Plan5k(Plan):
         training days a week.
         '''
 
+        # TODO: Namedtuple for progression inputs, use i
+
         details = [
             {'func': None, 'inputs': (25, 3, 35)},
             {'func': create_intervals, 'inputs': (25, 1, 25)},
@@ -483,19 +329,58 @@ class Plan5k(Plan):
         pass
 
 
+class Plan10k(Plan):
+    def beginner_plan(self, days):
+        raise NotImplementedError
+
+    def intermediate_plan(self, days):
+        raise NotImplementedError
+
+    def advanced_plan(self, days):
+        raise NotImplementedError
+
+
+class PlanHalf(Plan):
+    def beginner_plan(self, days):
+        raise NotImplementedError
+
+    def intermediate_plan(self, days):
+        raise NotImplementedError
+
+    def advanced_plan(self, days):
+        raise NotImplementedError
+
+
+class PlanFull(Plan):
+    def beginner_plan(self, days):
+        raise NotImplementedError
+
+    def intermediate_plan(self, days):
+        raise NotImplementedError
+
+    def advanced_plan(self, days):
+        raise NotImplementedError
+
+
 def get_plan(event):
     '''
     Plan factory method
     '''
-
     # Retrieve event information
-    distance, event_date = events_dict[event]
+    events = open_json('inputs/events')
+    distance = events[event]["distance"]
+    event_date = datetime.datetime.strptime(
+        events[event]["date"], '%Y-%m-%d').date()
 
     plans = {
         "5k": Plan5k,
-        "10k": Plan5k,
-        "half": Plan5k,
-        "ful": Plan5k,
+        "10k": Plan10k,
+        "half": PlanHalf,
+        "full": PlanFull,
     }
 
-    return plans[distance](datetime.date.today(), event_date, event)
+    settings = open_json('inputs/plans')
+
+    plan_settings = settings[distance][]
+
+    return plans[distance](datetime.date.today(), event_date, event, settings)

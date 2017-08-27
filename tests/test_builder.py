@@ -5,13 +5,27 @@ from datetime import date
 import app.main.builder as b
 
 
-# @pytest.mark.parametrize('event, expected', [
-#     (date(2017, 8, 16), 0, date(2017, 8, 21)),
-#     (date(2017, 8, 16), 2, date(2017, 8, 23)),
-#     (date(2017, 8, 16), 4, date(2017, 8, 25))
-# ])
-# def test_get_plan(now, weekday, expected):
-#     assert b.determine_next_weekday(now, weekday) == expected
+@pytest.mark.parametrize('start_date, num_weeks, start_week, step, expected', [
+    (date(2017, 8, 16), 8, 0, 1, [
+        (0, date(2017, 8, 16), 'prog'),
+        (1, date(2017, 8, 23), 'prog'),
+        (2, date(2017, 8, 30), 'prog'),
+        (3, date(2017, 9, 6), 'rest'),
+        (4, date(2017, 9, 13), 'prog'),
+        (5, date(2017, 9, 20), 'prog'),
+        (6, date(2017, 9, 27), 'prog'),
+        (7, date(2017, 10, 4), 'race'),
+    ]),
+    (date(2017, 8, 16), 8, 1, 2, [
+        (1, date(2017, 8, 23), 'prog'),
+        (3, date(2017, 9, 6), 'rest'),
+        (5, date(2017, 9, 20), 'prog'),
+        (7, date(2017, 10, 4), 'race'),
+    ]),
+])
+def test_plan_week_range(start_date, num_weeks, start_week, step, expected):
+    assert list(b.plan_week_range(
+        start_date, num_weeks, start_week, step)) == expected
 
 
 @pytest.fixture
@@ -25,7 +39,7 @@ def test_Plan_event_day_in_schedule(plan):
         b.Workout(date(2017, 9, 30), 'Event Day'))
 
 
-def test_Plann_event_date_property(plan):
+def test_Plan_event_date_property(plan):
     assert plan.event_date == '30 Sep 2017'
 
 
@@ -43,11 +57,11 @@ def test_determine_next_weekday(now, weekday, expected):
     assert b.determine_next_weekday(now, weekday) == expected
 
 
-def test_weekrange():
-    assert list(b.weekrange(date(2017, 8, 14), 4)) == [date(2017, 8, 14),
-                                                       date(2017, 8, 21),
-                                                       date(2017, 8, 28),
-                                                       date(2017, 9, 4)]
+# def test_weekrange():
+#     assert list(b.weekrange(date(2017, 8, 14), 4)) == [date(2017, 8, 14),
+#                                                        date(2017, 8, 21),
+#                                                        date(2017, 8, 28),
+#                                                        date(2017, 9, 4)]
 
 
 def test_mins_to_seconds_formatter():
@@ -118,42 +132,23 @@ def test_Workout_formatting(workout):
     assert workout.color == '#2ECC40'
     assert workout.textColor == 'hsla(127, 63%, 15%, 1.0)'
 
-# def test_Interval():
-#     interval = b.Interval(date(2017, 8, 11), 5, 1, 1)
-#     assert 'Interval' in repr(interval)
-
-
-# def test_Hillsprint():
-#     hillsprint = b.HillSprint(date(2017, 8, 11), 6, 0.25)
-#     assert 'HillSprint' in repr(hillsprint)
-
 
 def test_Progression_runeasy():
-    p = b.Progression(date(2017, 8, 11), 4)
-    p.create(25, 3, 35)
-    expected = ['25', '25', '30', '25']
-
+    p = b.Progression(date(2017, 8, 11), 8, func=b.create_runeasy)
+    p.create('5k', 'Beginner', 0)
+    expected = ['25', '25', '30', '25', '30', '35', '35', '30']
     for wk, dur in enumerate(expected):
         assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
 
 
-def test_Progression_runeasy():
-    p = b.Progression(date(2017, 8, 11), 4)
-    p.create(25, 3, 35)
-    expected = ['25', '25', '30', '25']
-
-    for wk, dur in enumerate(expected):
-        assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
-
-
-def test_Progression_intervals():
-    p = b.Progression(date(2017, 8, 11), 4)
-    p.create(25, 3, 35)
-    expected = ['25', '25', '30', '25']
-
-    for wk, dur in enumerate(expected):
-        assert dur in str(p.sessions[wk]), "dur failed at week {}".format(wk)
-
+@pytest.mark.xfail
+def test_Progression_interval():
+    p = b.Progression(date(2017, 8, 11), 8, 1, 2, func=b.create_intervals)
+    p.create(5, 2, 8, 0.5, 1, 1)
+    expected = [('5', '0.5'), ('6', '0.5'), ('6', '0.75'), ('7', '0.75')]
+    for wk, wo in enumerate(expected):
+        assert all(x in str(p.sessions[wk]) for x in wo
+                   ), "dur failed at week {}".format(wk)
 
 # def test_interval_progress():
 #     start = date(2017, 8, 14)

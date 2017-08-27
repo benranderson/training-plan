@@ -8,6 +8,15 @@ Hosted at <https://training-plan-br.herokuapp.com>.
 [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 
+## Features
+
+### Beginner
+
+1. Runeasy
+2. Intervals/Hilsprints
+
+
+
 ## Development setup (UNIX)
 
 First clone the repository to desired folder location:
