@@ -1,13 +1,6 @@
 ''' Utility Functions '''
 import json
-
-
-def open_json(file_name):
-    try:
-        with open(file_name, 'r') as i:
-            return json.load(i)
-    except FileNotFoundError:
-        raise FileNotFoundError('Check {} exists'.format(file_name))
+from datetime import timedelta
 
 
 def determine_next_weekday(now, weekday):
@@ -15,20 +8,16 @@ def determine_next_weekday(now, weekday):
     datetime, int -> datetime
     '''
     days_ahead = weekday - now.weekday() + 7
-    return now + datetime.timedelta(days_ahead)
+    return now + timedelta(days_ahead)
 
 
-def plan_week_range(start_date, num_weeks, start_week=0, step=1):
-    # ('prog', 'rest', 'race')
-    for wk in range(start_week, num_weeks, step):
-        date = start_date + datetime.timedelta(weeks=wk)
-        if wk == (num_weeks - 1):
-            week_type = 'race'
-        elif rest_week(wk, num_weeks):
-            week_type = 'rest'
-        else:
-            week_type = 'prog'
-        yield (wk, date, week_type)
+def week_type(week, length):
+    if week == (length - 1):
+        return 'race'
+    elif rest_week(week, length):
+        return 'rest'
+    else:
+        return 'prog'
 
 
 def rest_week(week, plan_length):
@@ -51,3 +40,29 @@ def rest_week(week, plan_length):
         return True
     else:
         return False
+
+
+def rest_pc_or_abs(week_cut, dur):
+    '''
+    Return rest week duration based on whether rest duration reduction is applied as an absolute
+    or % value
+    '''
+    if isinstance(week_cut, str):
+        return (float(week_cut.strip('%')) / 100) * dur
+    else:
+        return dur - week_cut
+
+
+class WorkoutEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        try:
+            to_serialize = {
+                'title': o.title,
+                'start': o.date,
+                'color': o.color,
+                'textColor': o.textColor,
+            }
+            return to_serialize
+        except AttributeError:
+            return super().default(o)

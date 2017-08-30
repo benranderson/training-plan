@@ -3,7 +3,7 @@ from wtforms import StringField, IntegerField, SelectField, SubmitField, SelectM
 from wtforms.validators import Required
 import datetime
 
-from .events import events_dict
+from .events import EVENTS
 
 LEVELS = [('beg', 'Beginner'),
           ('int', 'Intermediate'),
@@ -45,6 +45,6 @@ class PlanForm(FlaskForm):
         # Filter events to only show future events and those in less than 12 months
         self.event.choices = [(event, "{0} ({1})".format(event,
                                                          info[1].strftime('%d %b %Y')))
-                              for (event, info) in events_dict.items()
+                              for (event, info) in EVENTS.items()
                               if info[1] > date and
                               info[1] < (date + datetime.timedelta(weeks=4 * 12))]

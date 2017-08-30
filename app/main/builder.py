@@ -1,10 +1,14 @@
-import datetime
+from datetime import date, timedelta, datetime
 import calendar
 import json
 import types
+import os
 
-from .events import events_dict
-import utils
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+from .plans import PLANS
+from .utils import determine_next_weekday, week_type, rest_week, \
+    rest_pc_or_abs
 
 
 class Exercise:
@@ -58,17 +62,17 @@ class Workout:
                       'textColor': 'hsla(210, 100%, 75%, 1.0)'},
         'RunEasy': {'color': '#2ECC40',
                     'textColor': 'hsla(127, 63%, 15%, 1.0)'},
-        'Intervals': {'color': '#FF4136',
-                      'textColor': 'hsla(3, 100%, 25%, 1.0)'},
+        'Interval': {'color': '#FF4136',
+                     'textColor': 'hsla(3, 100%, 25%, 1.0)'},
         'Hillsprint': {'color': '#FFDC00',
                        'textColor': 'hsla(52, 100%, 20%, 1.0)'},
         'Tempo': {'color': '#0074D9',
                   'textColor': 'hsla(208, 100%, 85%, 1.0)'}
     }
 
-    def __init__(self, date, description):
+    def __init__(self, date, title):
         self.date = date
-        self.description = description
+        self.title = title
         self.duration = 0
         self.workoutsets = []
 
@@ -77,7 +81,7 @@ class Workout:
         Return a more human-readable representation
         '''
         return '{0} - {1}'.format(self.date.strftime('%d %b %Y'),
-                                  self.description)
+                                  self.title)
 
     def __str__(self):
         '''
@@ -86,15 +90,15 @@ class Workout:
         # TODO: add if for EventDay
         ws = '\n'.join('{0}x {1}'.format(workoutset.reps,
                                          workoutset.exercises) for workoutset in self.workoutsets)
-        return '{0}\n{1}'.format(self.description, ws)
+        return '{0}\n{1}'.format(self.title, ws)
 
     @property
     def color(self):
-        return self.formatting_dict[self.description]['color']
+        return self.formatting_dict[self.title]['color']
 
     @property
     def textColor(self):
-        return self.formatting_dict[self.description]['textColor']
+        return self.formatting_dict[self.title]['textColor']
 
     def add_workoutset(self, workoutset):
         self.workoutsets.append(workoutset)
@@ -102,59 +106,119 @@ class Workout:
 
 
 class Progression:
-    def __init__(self, start_date, length, start_week=0, step=1, func=None):
+
+    def __init__(self, start_date, length, progressions):
         self.start_date = start_date
         self.length = length
-        self.start_week = start_week
-        self.step = step
         self.sessions = []
 
-        if func is not None:
-            self.create = types.MethodType(func, self)
+        progress_dict = {
+            "runeasy": self.runeasy,
+            "interval": self.interval,
+            "hillsprint": self.hillsprint
+        }
 
-    def create(self):
-        raise NotImplementedError
+        start = 0
+        step = len(progressions)
 
+        for progression in progressions:
+            self.sessions += [wk for wk in progress_dict[progression[0]]
+                              (start, step, progression[1])]
+            start += 1
 
-def create_runeasy(self, distance, level, workout):
-    '''
-    Return an easy running progression as a list of workouts
-    '''
-
-    init_dur = RUNEASY_SETTINGS[distance][level][workout]['init_dur']
-    prog_freq = RUNEASY_SETTINGS[distance][level][workout]['prog_freq']
-    rest_week_cut = RUNEASY_SETTINGS[distance][level][workout]['rest_week_cut']
-    race_week_cut = RUNEASY_SETTINGS[distance][level][workout]['race_week_cut']
-    max_dur = RUNEASY_SETTINGS[distance][level][workout]['max_dur']
-
-    dur = init_dur
-
-    def week_cut_version(week_cut, dur):
+    def runeasy(self, start, step, settings):
         '''
-        Return rest week duration based on wether cut is applied as an absolute
-        or % value
         '''
-        if "%" in week_cut:
-            return (float(week_cut.strip('%')) / 100) * dur
-        else:
-            return dur - week_cut
 
-    for wk, date, wk_type in plan_week_range(self.start_date, self.length):
-        if wk_type == 'prog':
-            if (wk + 1) % prog_freq == 0 and dur < max_dur:
-                dur += 5
-            wk_dur = dur
-        elif wk_type == 'rest':
-            wk_dur = week_cut_version(rest_week_cut, dur)
-        else:
-            wk_dur = week_cut_version(race_week_cut, dur)
+        wk = start
 
-        w = Workout(date, 'RunEasy')
-        ws = WorkoutSet(1)
-        e = Exercise('Easy', wk_dur)
-        ws.add_exercise(e)
-        w.add_workoutset(ws)
-        self.sessions.append(w)
+        dur = settings.init_dur
+
+        while wk < self.length:
+            if week_type(wk, self.length) == 'prog':
+                if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
+                    dur += 5
+                wk_dur = dur
+            elif week_type(wk, self.length) == 'rest':
+                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            else:
+                wk_dur = rest_pc_or_abs(settings.race, dur)
+
+            # Build workout
+            date = self.start_date + timedelta(weeks=wk)
+            w = Workout(date, 'RunEasy')
+            ws = WorkoutSet(1)
+            e = Exercise('Easy', wk_dur)
+            ws.add_exercise(e)
+            w.add_workoutset(ws)
+
+            yield w
+
+            wk += step
+
+    def hillsprint(self, start, step, settings):
+        '''
+        '''
+
+        wk = start
+
+        dur = settings.init_dur
+
+        while wk < self.length:
+            if week_type(wk, self.length) == 'prog':
+                if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
+                    dur += 5
+                wk_dur = dur
+            elif week_type(wk, self.length) == 'rest':
+                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            else:
+                wk_dur = rest_pc_or_abs(settings.race, dur)
+
+            # Build workout
+            date = self.start_date + timedelta(weeks=wk)
+            w = Workout(date, 'Hillsprint')
+            ws = WorkoutSet(1)
+            e = Exercise('Easy', wk_dur)
+            ws.add_exercise(e)
+            w.add_workoutset(ws)
+
+            yield w
+
+            wk += step
+
+    def interval(self, start, step, settings):
+        '''
+        '''
+
+        wk = start
+
+        dur = settings.init_dur
+
+        while wk < self.length:
+            if week_type(wk, self.length) == 'prog':
+                if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
+                    dur += 5
+                wk_dur = dur
+            elif week_type(wk, self.length) == 'rest':
+                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            else:
+                wk_dur = rest_pc_or_abs(settings.race, dur)
+
+            # Build workout
+            date = self.start_date + timedelta(weeks=wk)
+            w = Workout(date, 'Interval')
+
+            durs = [10, wk_dur, 10]
+
+            for d in durs:
+                ws = WorkoutSet(1)
+                e = Exercise('Easy', d)
+                ws.add_exercise(e)
+                w.add_workoutset(ws)
+
+            yield w
+
+            wk += step
 
 
 def create_intervals(self, initial_reps, freq_reps, max_reps, initial_fast,
@@ -202,12 +266,13 @@ class Plan:
     Represents running training plan for prescribed event and level.
     '''
 
-    def __init__(self, start_date, event_date, event, settings):
+    def __init__(self, distance, level, start_date, event_date, event_title):
+
+        self.distance = distance
+        self.level = level
         self.start_date = start_date
         self._event_date = event_date
-        self.event = event
-        self.settings = settings
-        self.level = None
+        self.event_title = event_title
 
         # Populate schedule with event
         self.schedule = [Workout(self._event_date, 'Event Day')]
@@ -219,22 +284,17 @@ class Plan:
         '''
         return self.weeks_between_dates(self.start_date, self._event_date)
 
-    def create_schedule(self, level, days):
+    def create(self, days):
         '''
         Creates schedule based on ability level and training days
         '''
 
-        self.level = level
+        details = PLANS[self.distance][self.level]
 
-        def builder_dict(level, days):
-            level_dict = {
-                'Beginner': self.beginner_plan,
-                'Intermediate': self.intermediate_plan,
-                'Advanced': self.advanced_plan
-            }.get(level, None)
-            return level_dict(days)
-
-        self.schedule += builder_dict(level, days)
+        for day, detail in zip(days, details):
+            session_start = determine_next_weekday(self.start_date, day)
+            p = Progression(session_start, self.length, detail)
+            self.schedule += p.sessions
 
     def __repr__(self):
         '''
@@ -243,7 +303,7 @@ class Plan:
 
         return "{0} week {1} Plan for the {2}".format(self.length,
                                                       self.level,
-                                                      self.event)
+                                                      self.event_title)
 
     @property
     def event_date(self):
@@ -260,127 +320,26 @@ class Plan:
         return int((determine_next_weekday(end_date, 0) -
                     determine_next_weekday(start_date, 0)).days / 7)
 
-    def beginner_plan(self, days):
-        raise NotImplementedError
 
-    def intermediate_plan(self, days):
-        raise NotImplementedError
-
-    def advanced_plan(self, days):
-        raise NotImplementedError
-
-
-class Plan5k(Plan):
-
-    def beginner_plan(self, days):
-        '''
-        int, int -> None
-
-        Populate plan schedule with 5k Beginner progressions based on number of
-        training days a week.
-        '''
-
-        # TODO: Namedtuple for progression inputs, use i
-
-        details = [
-            {'func': None, 'inputs': (25, 3, 35)},
-            {'func': create_intervals, 'inputs': (25, 1, 25)},
-            {'func': None, 'inputs': (25, 3, 35)}
-        ]
-
-        schedule = []
-
-        for day, details in zip(days, details):
-            session_start = determine_next_weekday(self.start_date, day)
-            p = Progression(session_start, self.length, details['func'])
-            p.create(details['inputs'][0], details['inputs'][1],
-                     details['inputs'][2])
-            schedule += p.sessions
-
-        return schedule
-
-    def intermediate_plan(self, days):
-        '''
-        int, int -> matrix
-
-        Return matrix (list of lists) representing 5k Intermediate progressions.
-        Based on specified number of weeks and for specified number of training
-        days a week.
-        '''
-
-        # progressions = []
-
-        # if days > 0:
-        #     tempos = list(tempo_progress(weeks, start_week=0, step=2, freq=3))
-        #     ints = list(interval_progress(weeks, start_week=1, step=2))
-        #     progress = [val for pair in zip(tempos, ints) for val in pair]
-        #     progressions.append(progress)
-        # if days > 1:
-        #     progressions.append(list(run_easy_progress(weeks)))
-        # if days > 2:
-        #     progressions.append(
-        #         list(hillsprint_progress(weeks, start_week=0, step=1)))
-
-        # return progressions
-
-        pass
-
-    def advanced_plan(self, days):
-        pass
+def open_json(file_name):
+    try:
+        with open(file_name, 'r') as i:
+            return json.load(i)
+    except FileNotFoundError:
+        raise FileNotFoundError('Check {} exists'.format(file_name))
 
 
-class Plan10k(Plan):
-    def beginner_plan(self, days):
-        raise NotImplementedError
-
-    def intermediate_plan(self, days):
-        raise NotImplementedError
-
-    def advanced_plan(self, days):
-        raise NotImplementedError
-
-
-class PlanHalf(Plan):
-    def beginner_plan(self, days):
-        raise NotImplementedError
-
-    def intermediate_plan(self, days):
-        raise NotImplementedError
-
-    def advanced_plan(self, days):
-        raise NotImplementedError
-
-
-class PlanFull(Plan):
-    def beginner_plan(self, days):
-        raise NotImplementedError
-
-    def intermediate_plan(self, days):
-        raise NotImplementedError
-
-    def advanced_plan(self, days):
-        raise NotImplementedError
-
-
-def get_plan(event):
+def get_plan(event, level):
     '''
     Plan factory method
     '''
     # Retrieve event information
-    events = open_json('inputs/events')
+    resource_path = os.path.join(basedir, 'events.json')
+    events = open_json(resource_path)
     distance = events[event]["distance"]
-    event_date = datetime.datetime.strptime(
+    event_date = datetime.strptime(
         events[event]["date"], '%Y-%m-%d').date()
 
-    plans = {
-        "5k": Plan5k,
-        "10k": Plan10k,
-        "half": PlanHalf,
-        "full": PlanFull,
-    }
+    start_date = date.today()
 
-    settings = open_json('inputs/plans')
-
-    plan_settings = settings[distance][]
-
-    return plans[distance](datetime.date.today(), event_date, event, settings)
+    return Plan(distance, level, start_date, event_date, event)

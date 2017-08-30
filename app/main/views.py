@@ -1,23 +1,24 @@
 from flask import request, render_template, url_for, Response
+from datetime import date, timedelta
+import json
+
 from . import main
 from .. import db
 from .forms import PlanForm, LEVELS, DAYS
 from .builder import get_plan
 from ..models import Workout
-import datetime
-import json
 
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PlanForm(datetime.date.today())
+    form = PlanForm(date.today())
     if form.validate_on_submit():
         event = form.event.data
         level = dict(LEVELS).get(form.level.data)
         days = [day for day in form.days.data]
 
-        plan = get_plan(event)
-        plan.create_schedule(level, days)
+        plan = get_plan(event, level)
+        plan.create(days)
 
         Workout.query.delete()
 
