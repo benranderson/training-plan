@@ -34,7 +34,7 @@ def rest_week(week, plan_length):
     Returns True if rest week and False if progression week.
     '''
     build_up = plan_length % 4
-    if week <= build_up and build_up < 3:
+    if week <= build_up < 3:
         return False
     elif (week - build_up + 1) % 4 == 0:
         return True

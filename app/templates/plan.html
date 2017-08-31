@@ -18,7 +18,8 @@
                 },
                 editable: true,
                 eventLimit: true, // allow "more" link when too many events
-                events: {url: 'data'}              
+                events: {url: 'data'},
+                firstDay: 1          
             });
         });
     </script>
@@ -39,7 +40,7 @@
 
         <div>
             <h2>Summary</h2>
-            <p>{{ plan.length }} week {{ plan.level }} plan for the {{ plan.event_title }} on {{ plan.event_date }}! <i class="icon-smile"></i></p>
+            <p class="sum"><b>{{ plan.length }}</b> week <b>{{ plan.level }}</b> plan for the <b>{{ plan.event_title }}</b> on {{ plan.event_date }}! <i class="icon-smile"></i></p>
             <!-- <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <tr>

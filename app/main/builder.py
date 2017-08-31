@@ -112,7 +112,9 @@ class Progression:
         progress_dict = {
             "runeasy": self.runeasy,
             "interval": self.interval,
-            "hillsprint": self.hillsprint
+            "hill": self.hill,
+            "tempo": self.hill,
+            "crosstrain": self.hill
         }
 
         start = 0
@@ -137,9 +139,9 @@ class Progression:
                     dur += 5
                 wk_dur = dur
             elif utils.week_type(wk, self.length) == 'rest':
-                wk_dur = utils.rest_week(settings.rest, dur)
+                wk_dur = utils.rest_duration(settings.rest, dur)
             else:
-                wk_dur = utils.rest_week(settings.race, dur)
+                wk_dur = utils.rest_duration(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
@@ -153,7 +155,7 @@ class Progression:
 
             wk += step
 
-    def hillsprint(self, start, step, settings):
+    def hill(self, start, step, settings):
         '''
         '''
 
@@ -167,9 +169,9 @@ class Progression:
                     dur += 5
                 wk_dur = dur
             elif utils.week_type(wk, self.length) == 'rest':
-                wk_dur = utils.rest_week(settings.rest, dur)
+                wk_dur = utils.rest_duration(settings.rest, dur)
             else:
-                wk_dur = utils.rest_week(settings.race, dur)
+                wk_dur = utils.rest_duration(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
@@ -197,9 +199,9 @@ class Progression:
                     dur += 5
                 wk_dur = dur
             elif utils.week_type(wk, self.length) == 'rest':
-                wk_dur = utils.rest_week(settings.rest, dur)
+                wk_dur = utils.rest_duration(settings.rest, dur)
             else:
-                wk_dur = utils.rest_week(settings.race, dur)
+                wk_dur = utils.rest_duration(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
