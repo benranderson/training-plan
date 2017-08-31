@@ -1,7 +1,7 @@
 # Training Plan
 > Create a bespoke running training plan
 
-Web application for creating bespoke running training plans based on your race distance, ability level, time until your race and the number of days you wish to train per week.
+Web application for creating a bespoke running training plan for your event and ability level.
 
 Hosted at <https://training-plan-br.herokuapp.com>.
 
@@ -10,12 +10,7 @@ Hosted at <https://training-plan-br.herokuapp.com>.
 
 ## Features
 
-### Beginner
-
-1. Runeasy
-2. Intervals/Hilsprints
-
-
+Covers 5k, 10k, half marathon and full marathon events and beginner, intermediate and advanced ability levels
 
 ## Development setup (UNIX)
 
