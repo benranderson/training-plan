@@ -46,7 +46,7 @@ PLANS = {
             [("runeasy", RuneasySettings(30, 1, 5, 5, 35))]
         ]
     },
-    "Half": {
+    "half": {
         "Beginner": [
             [("runeasy", RuneasySettings(5, 1, 5, 5, 35))],
             [("runeasy", RuneasySettings(10, 1, 5, 5, 35)),
@@ -66,7 +66,7 @@ PLANS = {
             [("runeasy", RuneasySettings(30, 1, 5, 5, 35))]
         ]
     },
-    "Full": {
+    "full": {
         "Beginner": [
             [("runeasy", RuneasySettings(5, 1, 5, 5, 35))],
             [("runeasy", RuneasySettings(10, 1, 5, 5, 35)),

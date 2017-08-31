@@ -1,15 +1,18 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SelectField, SubmitField, SelectMultipleField
 from wtforms.validators import Required
-import datetime
+from datetime import datetime, timedelta
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 from .events import EVENTS
+from .utils import open_json
 
 LEVELS = [('beg', 'Beginner'),
           ('int', 'Intermediate'),
+          ('adv', 'Advanced')
           ]
-
-# ('adv', 'Advanced')
 
 DAYS = [(0, 'Monday'),
         (1, 'Tuesday'),
@@ -42,9 +45,12 @@ class PlanForm(FlaskForm):
 
     def __init__(self, date):
         super(PlanForm, self).__init__()
-        # Filter events to only show future events and those in less than 12 months
-        self.event.choices = [(event, "{0} ({1})".format(event,
-                                                         info[1].strftime('%d %b %Y')))
-                              for (event, info) in EVENTS.items()
-                              if info[1] > date and
-                              info[1] < (date + datetime.timedelta(weeks=4 * 12))]
+        # Show future events and those in less than 12 months
+        resource_path = os.path.join(basedir, 'events.json')
+        events = open_json(resource_path)
+
+        self.event.choices = [(event,
+                               "{0} ({1})".format(event,
+                                                  info["date"]))
+                              for (event, info) in events.items()
+                              if date < datetime.strptime(info["date"], '%Y-%m-%d').date() < (date + timedelta(weeks=4 * 12))]

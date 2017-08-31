@@ -3,27 +3,30 @@
         "distance": "5k",
         "date": "2017-08-12"
     },
-
     "2017 Dog Jog Liverpool": {
         "distance": "5k",
         "date": "2017-08-12"
     },
-
     "2017 Big Fun Run Sheffield": {
         "distance": "5k",
         "date": "2017-08-13"
     },
-
-
+    "2018 EMF 5k": {
+        "distance": "5k",
+        "date": "2018-05-26"
+    },
     "2018 EMF 10k": {
         "distance": "10k",
         "date": "2018-05-26"
     },
-
-    "2018 EMF 5k": {
-        "distance": "5k",
-        "date": "2018-05-26"
-    }
+    "2018 Edinburgh Half Marathon": {
+        "distance": "half",
+        "date": "2018-05-27"
+    },
+    "2018 Edinburgh Marathon": {
+        "distance": "full",
+        "date": "2018-05-27"
+    }    
 }
 
 

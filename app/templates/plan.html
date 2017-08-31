@@ -30,8 +30,7 @@
     <div class="container">
 
         <div class="jumbotron">
-            <h1>Training Plan</h1>
-            <p><i class="icon-double-angle-right icon-4x"></i></p>
+            <h1>Training Plan  <i class="icon-double-angle-right icon-1x"></i></h1>
         </div>
 
         <div>
@@ -40,10 +39,11 @@
 
         <div>
             <h2>Summary</h2>
-            <div class="table-responsive">
+            <p>{{ plan.length }} week {{ plan.level }} plan for the {{ plan.event_title }} on {{ plan.event_date }}! <i class="icon-smile"></i></p>
+            <!-- <div class="table-responsive">
                 <table class="table table-hover table-bordered">
                     <tr>
-                        <td><b>Event</b></td><td class="td-info" >{{ plan.event }}</td>
+                        <td><b>Event</b></td><td class="td-info" >{{ plan.event_title }}</td>
                     </tr>
                     <tr>
                         <td><b>Level</b></td><td class="td-info" >{{ plan.level }}</td>
@@ -55,7 +55,7 @@
                         <td><b>Training Plan Length</b></td><td class="td-info" >{{ plan.length }} weeks</td>
                     </tr>
                 </table>
-            </div>
+            </div> -->
         </div>
 
         <div>

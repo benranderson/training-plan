@@ -1,14 +1,11 @@
 from datetime import date, timedelta, datetime
-import calendar
-import json
 import types
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 from .plans import PLANS
-from .utils import determine_next_weekday, week_type, rest_week, \
-    rest_pc_or_abs
+from . import utils
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Exercise:
@@ -135,14 +132,14 @@ class Progression:
         dur = settings.init_dur
 
         while wk < self.length:
-            if week_type(wk, self.length) == 'prog':
+            if utils.week_type(wk, self.length) == 'prog':
                 if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
                     dur += 5
                 wk_dur = dur
-            elif week_type(wk, self.length) == 'rest':
-                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            elif utils.week_type(wk, self.length) == 'rest':
+                wk_dur = utils.rest_week(settings.rest, dur)
             else:
-                wk_dur = rest_pc_or_abs(settings.race, dur)
+                wk_dur = utils.rest_week(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
@@ -165,14 +162,14 @@ class Progression:
         dur = settings.init_dur
 
         while wk < self.length:
-            if week_type(wk, self.length) == 'prog':
+            if utils.week_type(wk, self.length) == 'prog':
                 if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
                     dur += 5
                 wk_dur = dur
-            elif week_type(wk, self.length) == 'rest':
-                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            elif utils.week_type(wk, self.length) == 'rest':
+                wk_dur = utils.rest_week(settings.rest, dur)
             else:
-                wk_dur = rest_pc_or_abs(settings.race, dur)
+                wk_dur = utils.rest_week(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
@@ -195,14 +192,14 @@ class Progression:
         dur = settings.init_dur
 
         while wk < self.length:
-            if week_type(wk, self.length) == 'prog':
+            if utils.week_type(wk, self.length) == 'prog':
                 if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
                     dur += 5
                 wk_dur = dur
-            elif week_type(wk, self.length) == 'rest':
-                wk_dur = rest_pc_or_abs(settings.rest, dur)
+            elif utils.week_type(wk, self.length) == 'rest':
+                wk_dur = utils.rest_week(settings.rest, dur)
             else:
-                wk_dur = rest_pc_or_abs(settings.race, dur)
+                wk_dur = utils.rest_week(settings.race, dur)
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
@@ -219,46 +216,6 @@ class Progression:
             yield w
 
             wk += step
-
-
-def create_intervals(self, initial_reps, freq_reps, max_reps, initial_fast,
-                     freq_fast, max_fast):
-    '''
-    Return an easy intervals progression as a list of workouts
-    '''
-
-    reps = initial_reps
-    fast = initial_fast
-
-    for wk, date, wk_type in plan_week_range(self.start_date, self.length):
-        if wk_type == 'prog':
-            if (wk / self.step) % 2 == 0:
-                if fast < max_fast:
-                    fast += 0.25
-                else:
-                    if reps < max_reps:
-                        reps += 1
-
-        wk_reps = reps
-        wk_fast = fast
-
-        w = Workout(date, 'Intervals')
-        ws = WorkoutSet(1)
-        e = Exercise('Easy', 10)
-        w.add_workoutset(ws)
-
-        ws = WorkoutSet(wk_reps)
-        es = [Exercise('Fast', wk_fast), Exercise('Easy', 1)]
-        for e in es:
-            ws.add_exercise(e)
-        w.add_workoutset(ws)
-
-        ws = WorkoutSet(1)
-        e = Exercise('Easy', 10)
-        ws.add_exercise(e)
-        w.add_workoutset(ws)
-
-        self.sessions.append(w)
 
 
 class Plan:
@@ -292,7 +249,7 @@ class Plan:
         details = PLANS[self.distance][self.level]
 
         for day, detail in zip(days, details):
-            session_start = determine_next_weekday(self.start_date, day)
+            session_start = utils.next_weekday(self.start_date, day)
             p = Progression(session_start, self.length, detail)
             self.schedule += p.sessions
 
@@ -317,16 +274,8 @@ class Plan:
         '''
         Return the number of weeks between two dates
         '''
-        return int((determine_next_weekday(end_date, 0) -
-                    determine_next_weekday(start_date, 0)).days / 7)
-
-
-def open_json(file_name):
-    try:
-        with open(file_name, 'r') as i:
-            return json.load(i)
-    except FileNotFoundError:
-        raise FileNotFoundError('Check {} exists'.format(file_name))
+        return int((utils.next_weekday(end_date, 0) -
+                    utils.next_weekday(start_date, 0)).days / 7)
 
 
 def get_plan(event, level):
@@ -335,7 +284,7 @@ def get_plan(event, level):
     '''
     # Retrieve event information
     resource_path = os.path.join(basedir, 'events.json')
-    events = open_json(resource_path)
+    events = utils.open_json(resource_path)
     distance = events[event]["distance"]
     event_date = datetime.strptime(
         events[event]["date"], '%Y-%m-%d').date()

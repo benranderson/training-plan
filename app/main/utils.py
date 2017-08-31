@@ -3,7 +3,7 @@ import json
 from datetime import timedelta
 
 
-def determine_next_weekday(now, weekday):
+def next_weekday(now, weekday):
     '''
     datetime, int -> datetime
     '''
@@ -42,15 +42,23 @@ def rest_week(week, plan_length):
         return False
 
 
-def rest_pc_or_abs(week_cut, dur):
+def rest_duration(rest, dur):
     '''
     Return rest week duration based on whether rest duration reduction is applied as an absolute
     or % value
     '''
-    if isinstance(week_cut, str):
-        return (float(week_cut.strip('%')) / 100) * dur
+    if isinstance(rest, str):
+        return (float(rest.strip('%')) / 100) * dur
     else:
-        return dur - week_cut
+        return dur - rest
+
+
+def open_json(file_name):
+    try:
+        with open(file_name, 'r') as i:
+            return json.load(i)
+    except FileNotFoundError:
+        raise FileNotFoundError('Check {} exists'.format(file_name))
 
 
 class WorkoutEncoder(json.JSONEncoder):
