@@ -57,14 +57,14 @@ class Workout:
     formatting_dict = {
         'Event Day': {'color': '#001F3F',
                       'textColor': 'hsla(210, 100%, 75%, 1.0)'},
-        'RunEasy': {'color': '#2ECC40',
-                    'textColor': 'hsla(127, 63%, 15%, 1.0)'},
-        'Interval': {'color': '#FF4136',
-                     'textColor': 'hsla(3, 100%, 25%, 1.0)'},
-        'Hillsprint': {'color': '#FFDC00',
-                       'textColor': 'hsla(52, 100%, 20%, 1.0)'},
-        'Tempo': {'color': '#0074D9',
-                  'textColor': 'hsla(208, 100%, 85%, 1.0)'}
+        'RunEasy': {'color': '#deeaee',
+                    'textColor': '#333'},
+        'Interval': {'color': '#c94c4c',
+                     'textColor': '#fff'},
+        'Hillsprint': {'color': '#b1cbbb',
+                       'textColor': '#333'},
+        'Tempo': {'color': '#eea29a',
+                  'textColor': '#333'}
     }
 
     def __init__(self, date, title):
@@ -87,7 +87,7 @@ class Workout:
         # TODO: add if for EventDay
         ws = '\n'.join('{0}x {1}'.format(workoutset.reps,
                                          workoutset.exercises) for workoutset in self.workoutsets)
-        return '{0}\n{1}'.format(self.title, ws)
+        return 'Duration: {0} mins\n{1}\n{2}'.format(self.duration, self.title, ws)
 
     @property
     def color(self):
