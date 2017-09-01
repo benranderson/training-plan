@@ -155,36 +155,6 @@ class Progression:
 
             wk += step
 
-    def hill(self, start, step, settings):
-        '''
-        '''
-
-        wk = start
-
-        dur = settings.init_dur
-
-        while wk < self.length:
-            if utils.week_type(wk, self.length) == 'prog':
-                if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
-                    dur += 5
-                wk_dur = dur
-            elif utils.week_type(wk, self.length) == 'rest':
-                wk_dur = utils.rest_duration(settings.rest, dur)
-            else:
-                wk_dur = utils.rest_duration(settings.race, dur)
-
-            # Build workout
-            date = self.start_date + timedelta(weeks=wk)
-            w = Workout(date, 'Hillsprint')
-            ws = WorkoutSet(1)
-            e = Exercise('Easy', wk_dur)
-            ws.add_exercise(e)
-            w.add_workoutset(ws)
-
-            yield w
-
-            wk += step
-
     def interval(self, start, step, settings):
         '''
         '''
@@ -214,6 +184,36 @@ class Progression:
                 e = Exercise('Easy', d)
                 ws.add_exercise(e)
                 w.add_workoutset(ws)
+
+            yield w
+
+            wk += step
+
+    def hill(self, start, step, settings):
+        '''
+        '''
+
+        wk = start
+
+        dur = settings.init_dur
+
+        while wk < self.length:
+            if utils.week_type(wk, self.length) == 'prog':
+                if (wk + 1) % settings.prog_freq == 0 and dur < settings.max_dur:
+                    dur += 5
+                wk_dur = dur
+            elif utils.week_type(wk, self.length) == 'rest':
+                wk_dur = utils.rest_duration(settings.rest, dur)
+            else:
+                wk_dur = utils.rest_duration(settings.race, dur)
+
+            # Build workout
+            date = self.start_date + timedelta(weeks=wk)
+            w = Workout(date, 'Hillsprint')
+            ws = WorkoutSet(1)
+            e = Exercise('Easy', wk_dur)
+            ws.add_exercise(e)
+            w.add_workoutset(ws)
 
             yield w
 

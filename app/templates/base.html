@@ -12,7 +12,8 @@
 {% block styles -%}
     {{super()}}
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css')}}"/>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet"/>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"/>
+    <link href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css" rel="stylesheet"/>
     <link href="{{ url_for('static', filename='fullcalendar.min.css') }}" rel='stylesheet' />
     <link href="{{ url_for('static', filename='fullcalendar.print.css') }}" rel='stylesheet' media='print' />  
 {% endblock %}

@@ -1,36 +1,47 @@
+/* .navbar {
+    background-color: #ff5800;
+} */
+
 body {
     /* Background pattern from Subtle Patterns */
-    background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0;
+    /* background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0; */
+    background-color: #001489;
+}
+
+/* p, h1, h2, label, .fc-day-header, .fc-day-number {
+    color: #d5f4e6;
+} */
+
+h1, h2 {
+    color: #ff5800;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+p, label, .fc-day-header, .fc-day-number {
+    color: #fff;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+.btn-primary {
+    background-color: #ff5800;
 }
 
 .jumbotron {
-    padding:0 !important;
+    font-family: 'Source Sans Pro', sans-serif;
+    padding: 20 !important;
+    color: #fff;
+    background-color: #ff5800;
+    /* color: #fff; */
     text-align: center;
-    background-color: transparent;
-    color:hsla(210, 100%, 75%, 1.0);
+    /* background-color: transparent; */
+    /* color:hsla(210, 100%, 75%, 1.0); */
 }
+
 
 .td-info  {
     text-align: center;
 }
 
-.sum {
+/* .sum {
     font-size: 150%;
-}
-
-/* .month>tbody>tr>td {
-    width: 14%;
-    height: 100px;
-}
-
-.today {
-    background-color: lightgrey;
-}
-
-.btn-block {
-    white-space: normal;
-}
-
-.th.month {
-    color: #001F3F;
 } */
