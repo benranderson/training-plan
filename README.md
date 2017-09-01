@@ -10,7 +10,7 @@ Hosted at <https://training-plan-br.herokuapp.com>.
 
 ## Features
 
-Covers 5k, 10k, half marathon and full marathon events and beginner, intermediate and advanced ability levels
+Covers 5k, 10k, half marathon and full marathon events and beginner, intermediate and advanced ability levels.
 
 ## Development setup (UNIX)
 
