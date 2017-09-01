@@ -1,11 +1,13 @@
-/* .navbar {
-    background-color: #ff5800;
-} */
+.navbar-default .navbar-brand {
+    color: #001489;
+}
+
 
 body {
     /* Background pattern from Subtle Patterns */
     /* background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0; */
-    background-color: #001489;
+    /* background-color: #001489; */
+    background-color: #fff;
     padding-bottom: 50px;
 }
 
@@ -14,17 +16,19 @@ body {
 } */
 
 h1, h2 {
-    color: #ff5800;
-    font-family: 'Source Sans Pro', sans-serif;
+    /* color: #ff5800; */
+    color: #333;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 p, label, .fc-day-header, .fc-day-number {
-    color: #fff;
+    color: #333;
     font-family: 'Source Sans Pro', sans-serif;
 }
 
 .btn-primary {
     background-color: #ff5800;
+    border-color: #ff5800
 }
 
 .jumbotron {
