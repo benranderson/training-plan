@@ -5,24 +5,35 @@
 {% block styles -%}
     {{super()}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/basic/jquery.qtip.css" rel="stylesheet"/>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.3/jquery-ui.css' rel='stylesheet' />
 {% endblock %}
 
 {% block scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/basic/jquery.qtip.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>    
+    
+    
+    
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'month, listWeek'
+                    right: 'month, listWeek, listMonth'
                 },
                 editable: true,
                 eventLimit: true, // allow "more" link when too many events
                 events: {url: 'data'},
-                firstDay: 1          
+                firstDay: 1,
+                eventClick: function(event){
+                    $("#eventInfo").html(event.description);
+                    $("#eventContent").dialog({ modal: true, title: event.title});
+                },         
             });
         });
     </script>
@@ -44,6 +55,11 @@
             <br>
             <p class="sum"><b>{{ plan.length }}</b> week <b>{{ plan.level }}</b> plan for the <b>{{ plan.event_title }}</b> on {{ plan.event_date }}!</p>
             <br>
+        </div>
+
+        <div id="eventContent" title="Event Details" style="display:none;">
+            <h4>Workout</h4>
+            <p id="eventInfo"></p>
         </div>
 
         <div>
