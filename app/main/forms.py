@@ -30,7 +30,7 @@ class NameForm(FlaskForm):
 
 class PlanForm(FlaskForm):
     event = SelectField('Which event are you training for?',
-                        default="2018 EMF 5k")
+                        default="Edinburgh Marathon Festival 5k")
 
     level = SelectField('What is your current level?',
                         choices=LEVELS,
