@@ -38,7 +38,7 @@ class PlanForm(FlaskForm):
 
     days = SelectMultipleField('On which days would you like to train?',
                                choices=DAYS,
-                               default=[0, 2, 4],
+                               default=[1, 3, 5],
                                coerce=int)
 
     submit = SubmitField('Submit')

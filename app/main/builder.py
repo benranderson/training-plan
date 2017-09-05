@@ -57,19 +57,19 @@ class Workout:
     formatting_dict = {
         'Event Day': {'color': '#001F3F',
                       'textColor': 'hsla(210, 100%, 75%, 1.0)'},
-        'RunEasy': {'color': '#deeaee',
-                    'textColor': '#333'},
-        'Interval': {'color': '#c94c4c',
-                     'textColor': '#fff'},
-        'Hillsprint': {'color': '#b1cbbb',
-                       'textColor': '#333'},
-        'Tempo': {'color': '#eea29a',
-                  'textColor': '#333'}
+        'RunEasy': {'color': '#2ECC40',
+                    'textColor': 'hsla(127, 63%, 15%, 1.0)'},
+        'Interval': {'color': '#FF4136',
+                     'textColor': 'hsla(3, 100%, 25%, 1.0)'},
+        'Hillsprint': {'color': '#FFDC00',
+                       'textColor': 'hsla(52, 100%, 20%, 1.0)'},
+        'Tempo': {'color': '#0074D9',
+                  'textColor': 'hsla(208, 100%, 85%, 1.0)'}
     }
 
-    def __init__(self, date, title):
+    def __init__(self, date, category):
         self.date = date
-        self.title = title
+        self.category = category
         self.duration = 0
         self.workoutsets = []
 
@@ -78,24 +78,24 @@ class Workout:
         Return a more human-readable representation
         '''
         return '{0} - {1}'.format(self.date.strftime('%d %b %Y'),
-                                  self.title)
+                                  self.category)
 
     def __str__(self):
         '''
         Return a more human-readable representation
         '''
         # TODO: add if for EventDay
-        ws = '\n'.join('{0}x {1}'.format(workoutset.reps,
-                                         workoutset.exercises) for workoutset in self.workoutsets)
-        return 'Duration: {0} mins\n{1}\n{2}'.format(self.duration, self.title, ws)
+
+        return '\n'.join('{0}x {1}'.format(workoutset.reps,
+                                           workoutset.exercises) for workoutset in self.workoutsets)
 
     @property
     def color(self):
-        return self.formatting_dict[self.title]['color']
+        return self.formatting_dict[self.category]['color']
 
     @property
     def textColor(self):
-        return self.formatting_dict[self.title]['textColor']
+        return self.formatting_dict[self.category]['textColor']
 
     def add_workoutset(self, workoutset):
         self.workoutsets.append(workoutset)

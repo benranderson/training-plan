@@ -8,14 +8,18 @@ class Workout(db.Model):
     __tablename__ = 'workout'
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.String, nullable=False)
-    title = db.Column(db.String, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    category = db.Column(db.String, nullable=False)
+    duration = db.Column(db.Float, nullable=False)
+    content = db.Column(db.String, nullable=False)
     color = db.Column(db.String)
     textColor = db.Column(db.String)
 
-    def __init__(self, date, title, color='red', textColor='blue'):
+    def __init__(self, date, category, duration, content, color, textColor):
         self.date = date
-        self.title = title
+        self.category = category
+        self.duration = duration
+        self.content = content
         self.color = color
         self.textColor = textColor
 

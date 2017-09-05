@@ -23,8 +23,8 @@ def index():
         Workout.query.delete()
 
         for workout in plan.schedule:
-            wo = Workout(workout.date, str(workout),
-                         workout.color, workout.textColor)
+            wo = Workout(workout.date, workout.category, workout.duration,
+                         str(workout), workout.color, workout.textColor)
             db.session.add(wo)
             db.session.commit()
 
@@ -39,8 +39,9 @@ def data():
     calendar = []
     workouts = Workout.query.all()
     for row in workouts:
-        calendar.append({'title': row.title,
-                         'start': row.date,
+        calendar.append({'title': '{0} ({1} mins)'.format(row.category,
+                                                          int(row.duration)),
+                         'start': str(row.date),
                          'color': row.color,
                          'textColor': row.textColor})
     return Response(json.dumps(calendar))
