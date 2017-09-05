@@ -6,7 +6,7 @@
     {{super()}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/basic/jquery.qtip.css" rel="stylesheet"/>
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.3/jquery-ui.css' rel='stylesheet' />
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css' rel='stylesheet' />
 {% endblock %}
 
 {% block scripts %}
@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qtip2/3.0.3/basic/jquery.qtip.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>    
     
     
     
@@ -32,7 +32,10 @@
                 firstDay: 1,
                 eventClick: function(event){
                     $("#eventInfo").html(event.description);
-                    $("#eventContent").dialog({ modal: true, title: event.title});
+                    $("#eventContent").dialog({
+                        modal: true,
+                        title: event.title
+                    });
                 },         
             });
         });
@@ -57,7 +60,7 @@
             <br>
         </div>
 
-        <div id="eventContent" title="Event Details" style="display:none;">
+        <div id="eventContent" title="Event Details">
             <h4>Workout</h4>
             <p id="eventInfo"></p>
         </div>

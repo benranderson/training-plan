@@ -86,8 +86,8 @@ class Workout:
         '''
         # TODO: add if for EventDay
 
-        return '\n'.join('{0}x {1}'.format(workoutset.reps,
-                                           workoutset.exercises) for workoutset in self.workoutsets)
+        return '<br />'.join('{0}x {1}'.format(workoutset.reps,
+                                               workoutset.exercises) for workoutset in self.workoutsets)
 
     @property
     def color(self):
