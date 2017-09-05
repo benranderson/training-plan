@@ -2,19 +2,22 @@
 
 {% import "bootstrap/utils.html" as utils %}
 
-
+{% block styles -%}
+    {{super()}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.css" rel="stylesheet"/>
+{% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='lib/moment.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='fullcalendar.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.js"></script>
     <script>
         $(document).ready(function() {
             $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'month,agendaWeek,agendaDay'
+                    right: 'month, listWeek'
                 },
                 editable: true,
                 eventLimit: true, // allow "more" link when too many events

@@ -45,7 +45,7 @@ class PlanForm(FlaskForm):
 
     def __init__(self, date):
         super(PlanForm, self).__init__()
-        # Show future events and those in less than 12 months
+        # Show future events within 12 months
         resource_path = os.path.join(basedir, 'events.json')
         events = open_json(resource_path)
 
