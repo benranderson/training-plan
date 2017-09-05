@@ -39,8 +39,8 @@ def data():
     calendar = []
     workouts = Workout.query.all()
     for row in workouts:
-        calendar.append({'title': '{0} ({1} mins)'.format(row.category,
-                                                          int(row.duration)),
+        calendar.append({'title': '{0} min {1}'.format(int(row.duration),
+                                                       row.category),
                          'start': str(row.date),
                          'color': row.color,
                          'textColor': row.textColor})
