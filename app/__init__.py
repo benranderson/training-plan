@@ -44,7 +44,7 @@ def create_app(config_name):
 
     nav.register_element('frontend_top', Navbar(
         View('Training Plan', '.index'),
-        View('Home', '.index'),
-        Text('Using Flask-Bootstrap {}'.format(FLASK_BOOTSTRAP_VERSION)), ))
+        View('Home', '.index')
+    ))
 
     return app

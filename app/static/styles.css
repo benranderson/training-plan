@@ -1,17 +1,11 @@
 body {
     /* Background pattern from Subtle Patterns */
     /* background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0; */
-    /* background-color: #001489; */
     background-color: #fff;
     padding-bottom: 50px;
 }
 
-/* p, h1, h2, label, .fc-day-header, .fc-day-number {
-    color: #d5f4e6;
-} */
-
 h1, h2 {
-    /* color: #ff5800; */
     color: #333;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -31,17 +25,49 @@ p, label, .fc-day-header, .fc-day-number {
     padding: 20 !important;
     color: #fff;
     background-color: #ff5800;
-    /* color: #fff; */
-    text-align: center;
-    /* background-color: transparent; */
-    /* color:hsla(210, 100%, 75%, 1.0); */
-}
-
-
-.td-info  {
     text-align: center;
 }
 
-/* .sum {
-    font-size: 150%;
-} */
+.modal.custom .modal-dialog {
+    width:50%;
+    margin:0 auto;
+    /*add what you want here*/
+}
+
+/* footer */
+
+footer {
+    margin-top: 45px;
+    padding-top: 5px;
+    border-top: 1px solid #eaeaea;
+    color: #999999;
+  }
+  
+  footer a {
+    color: #999999;
+  }
+  
+  footer p {
+    float: right;
+    margin-right: 25px;
+  }
+  
+  footer ul {
+    list-style: none;
+  }
+  
+  footer ul li {
+    float: left;
+    margin-left: 10px;
+  }
+  
+  footer .company {
+    float: left;
+    margin-left: 25px;
+  }
+  
+  footer .footer-nav {
+    float: right;
+    margin-right: 25px;
+    list-style: none;
+  }

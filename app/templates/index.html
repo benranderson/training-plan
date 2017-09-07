@@ -4,6 +4,7 @@
 
 {% import "bootstrap/utils.html" as utils %}
 
+<!-- Show specified number of multi-select options -->
 {% macro render_field(field, s) -%}
     {% if field.type != 'HiddenField' %}
         <label for="{{ field.id }}">{{ field.label }}</label>
@@ -11,10 +12,8 @@
     {% endif %}
 {%- endmacro %}
 
-
 {% block content %}
    <div class="container">
-
         {%- with messages = get_flashed_messages(with_categories=True) %}
         {%- if messages %}
             <div class="row">
@@ -24,32 +23,24 @@
             </div>
         {%- endif %}
         {%- endwith %}
-
         <div class="jumbotron">
             <h1>Hello, Runner!  <i class="mdi mdi-run-fast"></i></h1>
         </div>
-
         <div class="col-md-12">
             <form class="form" method="post" role="form">
                 {{ form.hidden_tag() }}
-                {{ wtf.form_errors(form, hiddens="only") }}
-                
+                {{ wtf.form_errors(form, hiddens="only") }}               
                 {{ form.event.label }}
                 {{ form.event(class="form-control") }}
-                <br>
-                
+                <br>               
                 {{ form.level.label }}
                 {{ form.level(class="form-control") }}
-                <br>
-                
+                <br>              
                 {{ render_field(form.days, 7) }}
                 <br>
-
                 {{ form.submit(class="btn btn-primary btn-block") }}
-
             </form>
         </div>
-
    </div>
 {%- endblock %}
 

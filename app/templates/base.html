@@ -1,12 +1,14 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Training Plan App{% endblock %}
+{% block title %}
+    Training Plan App
+{% endblock %}
 
 {% import "bootstrap/fixes.html" as fixes %}
 
 {% block head %}
-{{ super() }}
-{{fixes.ie8()}}
+    {{ super() }}
+    {{fixes.ie8()}}
 {% endblock %}
 
 {% block styles -%}
@@ -21,3 +23,4 @@
     {{nav.frontend_top.render()}}
 </nav>
 {% endblock %}
+
