@@ -13,6 +13,12 @@
 {%- endmacro %}
 
 {% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover(); 
+        });
+    </script>
     <div class="jumbotron">
         <h1>Hello, Runner!  <i class="mdi mdi-run-fast"></i></h1>
     </div>
@@ -29,16 +35,19 @@
         <div class="col-md-12">
             <form class="form" method="post" role="form">
                 {{ form.hidden_tag() }}
-                {{ wtf.form_errors(form, hiddens="only") }}               
-                {{ form.event.label }}
-                {{ form.event(class="form-control") }}
-                <br>               
-                {{ form.level.label }}
-                {{ form.level(class="form-control") }}
-                <br>              
-                {{ render_field(form.days, 7) }}
+                {{ wtf.form_errors(form, hiddens="only") }}</p>         
+                <p>{{ form.event.label }}</p>
+                <p>{{ form.event(class="form-control") }}</p>        
+                <p>{{ form.level.label }} <i class="mdi mdi-information-outline" data-toggle="popover" data-placement="bottom" data-html="true" title="Ability Levels" data-content="<h5>Beginner</h5>
+                    <p>You have done little or no exercise and would like to start some running.</p>
+                    <h5>Intermediate</h5>
+                    <p>You are planning to invest a little more time and effort into your running training.  This plan will see you run 3 to 4 times a week and assumes you can already run for 30 minutes continuously.</p>
+                    <h5>Advanced</h5>
+                    <p>You have already banked a few races and want to improve your performance.  It includes fast intervals and sustained paced running.  You’ll be running 4 times a week.</p>"></i></p>
+                <p>{{ form.level(class="form-control") }}</p> 
+                <p>{{ render_field(form.days, 7) }}</p>
                 <br>
-                {{ form.submit(class="btn btn-primary btn-block") }}
+                <p>{{ form.submit(class="btn btn-primary btn-block") }}</p>
             </form>
         </div>
    </div>

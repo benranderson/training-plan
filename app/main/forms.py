@@ -32,7 +32,7 @@ class PlanForm(FlaskForm):
     event = SelectField('Which event are you training for?',
                         default="Edinburgh Marathon Festival 5k")
 
-    level = SelectField('What is your current level?',
+    level = SelectField('What is your current ability level?',
                         choices=LEVELS,
                         default='Beginner')
 

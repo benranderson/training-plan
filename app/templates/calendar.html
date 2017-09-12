@@ -51,17 +51,19 @@
         <div>
             <br>
             <p>The coloured days in the calendar represent the different types of training sessions shown below.  Click on these for more detail.</p>
-            <h3>Key</h3>
-            <div class="row">
-                <button type="button" class="btn btn-easy col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Easy Run Workout" data-description="Run at an easy pace for a specified period of time.  Easy pace is very comfortable.  You should be able to maintain this pace for a long period of time.  You should be able to hold a conversation when running at an easy pace.">Easy Run</button>
-                <button type="button" class="btn btn-interval col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Intervals Workout" data-description="Alternate running fast and easy.">Intervals</button>
-                <button type="button" class="btn btn-hillsprint col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Hillsprint Workout" data-description="Run fast uphill then turn and run easy or walk back down hill to your starting point">Hillsprint</button>
+            <h4>Key</h4>
+            <div>
+                <button type="button" class="btn btn-easy col-xs-4 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Easy Run Workout" data-description="Run at an easy pace for a specified period of time.  Easy pace is very comfortable.  You should be able to maintain this pace for a long period of time.  You should be able to hold a conversation when running at an easy pace.">Easy Run</button>
+                <button type="button" class="btn btn-interval col-xs-4 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Intervals Workout" data-description="Alternate running fast and easy.">Intervals</button>
+                <button type="button" class="btn btn-hillsprint col-xs-4 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Hillsprint Workout" data-description="Run fast uphill then turn and run easy or walk back down hill to your starting point">Hillsprint</button>
+                <br>
             </div>
             <br>
         </div>
         
         <!-- TODO: previous / next month -->
         <div>
+            <br>
             {{ context['calendar'] | safe }}
         </div>
     </div>
