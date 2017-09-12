@@ -13,6 +13,9 @@
 {%- endmacro %}
 
 {% block content %}
+    <div class="jumbotron">
+        <h1>Hello, Runner!  <i class="mdi mdi-run-fast"></i></h1>
+    </div>
    <div class="container">
         {%- with messages = get_flashed_messages(with_categories=True) %}
         {%- if messages %}
@@ -23,9 +26,6 @@
             </div>
         {%- endif %}
         {%- endwith %}
-        <div class="jumbotron">
-            <h1>Hello, Runner!  <i class="mdi mdi-run-fast"></i></h1>
-        </div>
         <div class="col-md-12">
             <form class="form" method="post" role="form">
                 {{ form.hidden_tag() }}
@@ -43,5 +43,6 @@
         </div>
    </div>
 {%- endblock %}
+
 
 

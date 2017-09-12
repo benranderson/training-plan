@@ -1,37 +1,77 @@
+.dark-primary-color    { background: #E64A19; }
+.default-primary-color { background: #FF5722; }
+.light-primary-color   { background: #FFCCBC; }
+.text-primary-color    { color: #FFFFFF; }
+.accent-color          { background: #607D8B; }
+.primary-text-color    { color: #212121; }
+.secondary-text-color  { color: #757575; }
+.divider-color         { border-color: #BDBDBD; }
+
 body {
     /* Background pattern from Subtle Patterns */
-    /* background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0; */
-    background-color: #fff;
+    /* background: url(http://subtlepatterns.com/patterns/fabric_of_squares_gray.png) repeat 0 0; */   
+    background-color: #FFFFFF;
     padding-bottom: 50px;
 }
 
 h1, h2 {
-    color: #333;
+    color: #212121;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 p, label, .fc-day-header, .fc-day-number {
-    color: #333;
+    color: #757575;
     font-family: 'Source Sans Pro', sans-serif;
 }
 
 .btn-primary {
-    background-color: #ff5800;
-    border-color: #ff5800
+    background-color: #FF5722;
+    border-color: #FF5722;
 }
 
 .jumbotron {
     font-family: 'Source Sans Pro', sans-serif;
     padding: 20 !important;
     color: #fff;
-    background-color: #ff5800;
+    background-color: #FF5722;
     text-align: center;
 }
 
 .modal.custom .modal-dialog {
     width:50%;
     margin:0 auto;
-    /*add what you want here*/
+}
+
+/* Workout buttons */
+
+.btn-event {
+  background-color: #673AB7;
+  border-color: #673AB7;
+  color: #FFFFFF;
+}
+
+.btn-easy {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+  color: #FFFFFF;
+}
+
+.btn-interval {
+  background-color: #F44336;
+  border-color: #F44336;
+  color: #FFFFFF;
+}
+
+.btn-hillsprint {
+  background-color: #FFC107;
+  border-color: #FFC107;
+  color: #212121;
+}
+
+.btn-tempo {
+  background-color: #2196F3;
+  border-color: #2196F3;
+  color: #FFFFFF;
 }
 
 /* footer */
@@ -71,3 +111,32 @@ footer {
     margin-right: 25px;
     list-style: none;
   }
+
+/**************************************************************
+ * Calendar
+ **************************************************************/
+
+table.month td{
+  height: 4em;
+  text-align: center;
+}
+
+table.month th{
+  text-align: center;
+  color: #212121;
+}
+
+table.month td {
+  width: 14.285%;
+}
+
+table.month th.month{
+  text-align: center;
+  color: #212121;
+  background-color: #eeeeec;
+  font-size: 150%;
+}
+
+table.month td.today {
+  background-color: #FFF8DC;
+}

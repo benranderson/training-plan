@@ -2,7 +2,7 @@
 import os
 
 from app import create_app, db
-from app.models import User, Role
+from app.models import User
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
 
@@ -12,6 +12,8 @@ migrate = Migrate(app, db)
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(PROJECT_ROOT, 'tests')
+
+# TODO: REST API
 
 
 def make_shell_context():

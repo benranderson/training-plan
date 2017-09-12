@@ -54,19 +54,6 @@ class Workout:
     Represents a workout session
     '''
 
-    formatting_dict = {
-        'Event Day': {'color': '#001F3F',
-                      'textColor': 'hsla(210, 100%, 75%, 1.0)'},
-        'RunEasy': {'color': '#2ECC40',
-                    'textColor': 'hsla(127, 63%, 15%, 1.0)'},
-        'Interval': {'color': '#FF4136',
-                     'textColor': 'hsla(3, 100%, 25%, 1.0)'},
-        'Hillsprint': {'color': '#FFDC00',
-                       'textColor': 'hsla(52, 100%, 20%, 1.0)'},
-        'Tempo': {'color': '#0074D9',
-                  'textColor': 'hsla(208, 100%, 85%, 1.0)'}
-    }
-
     def __init__(self, date, category):
         self.date = date
         self.category = category
@@ -88,14 +75,6 @@ class Workout:
 
         return '<br />'.join('{0}x {1}'.format(workoutset.reps,
                                                workoutset.exercises) for workoutset in self.workoutsets)
-
-    @property
-    def color(self):
-        return self.formatting_dict[self.category]['color']
-
-    @property
-    def textColor(self):
-        return self.formatting_dict[self.category]['textColor']
 
     def add_workoutset(self, workoutset):
         self.workoutsets.append(workoutset)
@@ -145,7 +124,7 @@ class Progression:
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
-            w = Workout(date, 'RunEasy')
+            w = Workout(date, 'easy')
             ws = WorkoutSet(1)
             e = Exercise('Easy', wk_dur)
             ws.add_exercise(e)
@@ -175,7 +154,7 @@ class Progression:
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
-            w = Workout(date, 'Interval')
+            w = Workout(date, 'interval')
 
             durs = [10, wk_dur, 10]
 
@@ -209,7 +188,7 @@ class Progression:
 
             # Build workout
             date = self.start_date + timedelta(weeks=wk)
-            w = Workout(date, 'Hillsprint')
+            w = Workout(date, 'hillsprint')
             ws = WorkoutSet(1)
             e = Exercise('Easy', wk_dur)
             ws.add_exercise(e)

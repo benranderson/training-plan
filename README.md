@@ -12,6 +12,18 @@ Hosted at <https://training-plan-br.herokuapp.com>.
 
 Covers 5k, 10k, half marathon and full marathon events and beginner, intermediate and advanced ability levels.
 
+```python
+
+schedule = get_schedule(start, event, ability, days)
+
+def get_schedule():
+    return {date_1: workout_1,
+            date_2: workout_2,
+            etc...}
+
+
+```
+
 ## Development setup (UNIX)
 
 First clone the repository to desired folder location:

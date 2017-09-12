@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/utils.html" as utils %}
+
+{%block title%}Calendar{% endblock %}
+
+{%block content %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+    $(function(){
+        $('#workoutModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var title = button.data('title');
+            var description = button.data('description');
+            var modal = $(this);
+            modal.find('.modal-title').text(title);
+            modal.find('.modal-body').text(description);
+        });
+    });
+    </script>
+
+    <div class="jumbotron">
+        <h1>Training Plan <i class="fa fa-calendar"></i></h1>
+    </div>
+    <div class="container">
+        <div>
+            <!-- TODO: automate plan description -->
+            <p><b>12</b> week <b>Beginner</b> plan for the <b>EMF 5k</b> on <b>26th May 2018</b>.</p>
+            <br>
+            <p><a href="{{ url_for('main.index') }}"><button type="button" class="btn btn-default btn-block">Back</button></a></p>
+        </div>   
+        
+        <!-- Workout Modal -->
+        <div class="modal fade" id="workoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Title placeholder</h4>
+                    </div>
+                    <div>
+                        <p class="modal-body">Body placeholder</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <br>
+            <p>The coloured days in the calendar represent the different types of training sessions shown below.  Click on these for more detail.</p>
+            <h3>Key</h3>
+            <div class="row">
+                <button type="button" class="btn btn-easy col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Easy Run Workout" data-description="Run at an easy pace for a specified period of time.  Easy pace is very comfortable.  You should be able to maintain this pace for a long period of time.  You should be able to hold a conversation when running at an easy pace.">Easy Run</button>
+                <button type="button" class="btn btn-interval col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Intervals Workout" data-description="Alternate running fast and easy.">Intervals</button>
+                <button type="button" class="btn btn-hillsprint col-xs-6 col-sm-4" data-toggle="modal" data-target="#workoutModal" data-title="Hillsprint Workout" data-description="Run fast uphill then turn and run easy or walk back down hill to your starting point">Hillsprint</button>
+            </div>
+            <br>
+        </div>
+        
+        <!-- TODO: previous / next month -->
+        <div>
+            {{ context['calendar'] | safe }}
+        </div>
+    </div>
+    
+{%endblock %}
+
+

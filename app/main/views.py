@@ -1,12 +1,15 @@
-from flask import request, render_template, url_for, Response
+from flask import request, render_template, url_for, redirect, Response
 from datetime import date, timedelta
 import json
+
+from sqlalchemy import extract
 
 from . import main
 from .. import db
 from .forms import PlanForm, LEVELS, DAYS
 from .builder import get_plan
 from ..models import Workout
+from .calendar import WorkoutCalendar
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -24,13 +27,12 @@ def index():
 
         for workout in plan.schedule:
             wo = Workout(workout.date, workout.category, workout.duration,
-                         str(workout), workout.color, workout.textColor)
+                         str(workout))
             db.session.add(wo)
             db.session.commit()
 
-        # plan.create_cals()
-
-        return render_template('plan.html', plan=plan)
+        return redirect(url_for('main.calendar'))
+        # return render_template('calendar.html')
     return render_template('index.html', form=form)
 
 
@@ -46,3 +48,31 @@ def data():
                          'textColor': row.textColor,
                          'description': row.content})
     return Response(json.dumps(calendar))
+
+
+@main.route('/calendar', defaults={'year': date.today().year,
+                                   'month': date.today().month})
+@main.route('/calendar/<int:year>/<int:month>')
+def calendar(year, month):
+    '''
+    Show a calendar with the training plan schedule
+    '''
+
+    page = request.args.get('page', 1, type=int)
+
+    workouts_year = Workout.query.filter(extract('year', Workout.date) == year)
+    workouts_month = workouts_year.filter(
+        extract('month', Workout.date) == month)
+
+    workouts = {}
+    for workout in workouts_month:
+        workouts[workout.date] = workout
+
+    context = {}
+    context['calendar'] = WorkoutCalendar(
+        workouts).formatmonth(year, month)
+    context['workouts'] = workouts_month
+    context['current_year'] = year
+    context['current_month'] = month
+
+    return render_template('calendar.html', context=context)

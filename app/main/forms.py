@@ -49,8 +49,9 @@ class PlanForm(FlaskForm):
         resource_path = os.path.join(basedir, 'events.json')
         events = open_json(resource_path)
 
-        self.event.choices = [(event,
-                               "{0} ({1})".format(event,
-                                                  info["date"]))
-                              for (event, info) in events.items()
-                              if date < datetime.strptime(info["date"], '%Y-%m-%d').date() < (date + timedelta(weeks=4 * 12))]
+        self.event.choices = [
+            (event, "{0} ({1})".format(event,
+                                       datetime.strptime(info["date"],
+                                                         '%Y-%m-%d').date().strftime('%d %b %Y')))
+            for (event, info) in events.items()
+            if date < datetime.strptime(info["date"], '%Y-%m-%d').date() < (date + timedelta(weeks=4 * 12))]

@@ -2,6 +2,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from . import db, login_manager
 
+# TODO: implement user model
+# TODO: Plan model
+
 
 class Workout(db.Model):
 
@@ -12,31 +15,15 @@ class Workout(db.Model):
     category = db.Column(db.String, nullable=False)
     duration = db.Column(db.Float, nullable=False)
     content = db.Column(db.String, nullable=False)
-    color = db.Column(db.String)
-    textColor = db.Column(db.String)
 
-    def __init__(self, date, category, duration, content, color, textColor):
+    def __init__(self, date, category, duration, content):
         self.date = date
         self.category = category
         self.duration = duration
         self.content = content
-        self.color = color
-        self.textColor = textColor
 
     def __repr__(self):
         return '<date %r>' % self.date
-
-
-class Role(db.Model):
-
-    __tablename__ = 'roles'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
-    users = db.relationship('User', backref='role', lazy='dynamic')
-
-    def __repr__(self):
-        return '<Role %r>' % self.name
 
 
 class User(UserMixin, db.Model):
@@ -46,7 +33,6 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     password_hash = db.Column(db.String(128))
 
     @property
