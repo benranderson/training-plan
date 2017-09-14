@@ -1,0 +1,7 @@
+<!-- Show specified number of multi-select options -->
+{% macro render_field(field, s) -%}
+{% if field.type != 'HiddenField' %}
+    <label for="{{ field.id }}">{{ field.label }}</label>
+   {{ field(size=s, class="form-control", **kwargs) }}
+{% endif %}
+{%- endmacro %}

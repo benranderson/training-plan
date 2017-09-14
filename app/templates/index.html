@@ -1,16 +1,7 @@
-{% import "bootstrap/wtf.html" as wtf %}
-
 {% extends "base.html" %}
-
+{% import "bootstrap/wtf.html" as wtf %}
 {% import "bootstrap/utils.html" as utils %}
-
-<!-- Show specified number of multi-select options -->
-{% macro render_field(field, s) -%}
-    {% if field.type != 'HiddenField' %}
-        <label for="{{ field.id }}">{{ field.label }}</label>
-       {{ field(size=s, class="form-control", **kwargs) }}
-    {% endif %}
-{%- endmacro %}
+{% import "_macros.html" as macros %}
 
 {% block content %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -37,7 +28,8 @@
                 {{ form.hidden_tag() }}
                 {{ wtf.form_errors(form, hiddens="only") }}</p>         
                 <p>{{ form.event.label }}</p>
-                <p>{{ form.event(class="form-control") }}</p>        
+                <p>{{ form.event(class="form-control") }}</p>
+                <br>     
                 <p>{{ form.level.label }} <i class="mdi mdi-information-outline" data-toggle="popover" data-placement="bottom" data-html="true" title="Ability Levels" data-content="<h5>Beginner</h5>
                     <p>You have done little or no exercise and would like to start some running.</p>
                     <h5>Intermediate</h5>
@@ -45,12 +37,14 @@
                     <h5>Advanced</h5>
                     <p>You have already banked a few races and want to improve your performance.  It includes fast intervals and sustained paced running.  You’ll be running 4 times a week.</p>"></i></p>
                 <p>{{ form.level(class="form-control") }}</p> 
-                <p>{{ render_field(form.days, 7) }}</p>
+                <br>
+                <p>{{ macros.render_field(form.days, 7) }}</p>
                 <br>
                 <p>{{ form.submit(class="btn btn-primary btn-block") }}</p>
             </form>
         </div>
    </div>
+   {% include "footer.html" %}
 {%- endblock %}
 
 

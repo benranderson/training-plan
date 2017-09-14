@@ -1,8 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}
-    Training Plan App
-{% endblock %}
+<title>{% block title %}Training Plan{% endblock %}</title>
 
 {% import "bootstrap/fixes.html" as fixes %}
 
@@ -24,3 +22,4 @@
 </nav>
 {% endblock %}
 
+{% block content %}{% endblock %}
