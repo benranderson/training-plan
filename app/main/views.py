@@ -36,6 +36,12 @@ def index():
     return render_template('index.html', form=form)
 
 
+@main.route('/about/')
+def about():
+    """About page."""
+    return render_template('about.html')
+
+
 @main.route('/data')
 def data():
     calendar = []

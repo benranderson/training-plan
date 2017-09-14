@@ -3,26 +3,18 @@
 {% import "bootstrap/utils.html" as utils %}
 {% import "_macros.html" as macros %}
 
-{% block content %}
+{% block page_content %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
             $('[data-toggle="popover"]').popover(); 
         });
     </script>
+    
     <div class="jumbotron">
         <h1>Hello, Runner!  <i class="mdi mdi-run-fast"></i></h1>
     </div>
-   <div class="container">
-        {%- with messages = get_flashed_messages(with_categories=True) %}
-        {%- if messages %}
-            <div class="row">
-                <div class="col-md-12">
-                    {{utils.flashed_messages(messages)}}
-                </div>
-            </div>
-        {%- endif %}
-        {%- endwith %}
+    <div class="container">
         <div class="col-md-12">
             <form class="form" method="post" role="form">
                 {{ form.hidden_tag() }}
@@ -44,7 +36,7 @@
             </form>
         </div>
    </div>
-   {% include "footer.html" %}
+   
 {%- endblock %}
 
 

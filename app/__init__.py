@@ -42,9 +42,10 @@ def create_app(config_name):
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
-    nav.register_element('frontend_top', Navbar(
+    nav.register_element('mynavbar', Navbar(
         View('Training Plan', '.index'),
-        View('Home', '.index')
+        View('Home', '.index'),
+        View('About', '.about')
     ))
 
     return app

@@ -4,7 +4,7 @@
 
 {%block title%}Calendar{% endblock %}
 
-{%block content %}
+{%block page_content %}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
@@ -67,8 +67,6 @@
             {{ context['calendar'] | safe }}
         </div>
     </div>
-
-    {% include "footer.html" %}
     
 {%endblock %}
 

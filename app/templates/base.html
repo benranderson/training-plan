@@ -1,12 +1,9 @@
 {% extends "bootstrap/base.html" %}
 
-<title>{% block title %}Training Plan{% endblock %}</title>
-
-{% import "bootstrap/fixes.html" as fixes %}
+{% block title %}Training Plan{% endblock %}
 
 {% block head %}
     {{ super() }}
-    {{fixes.ie8()}}
 {% endblock %}
 
 {% block styles -%}
@@ -17,9 +14,10 @@
 {% endblock %}
 
 {% block navbar %}
-<nav class = "navbar">
-    {{nav.frontend_top.render()}}
-</nav>
+{{nav.mynavbar.render()}}
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+    {% block page_content %}{% endblock %}
+    {% include "footer.html" %}
+{% endblock %}
